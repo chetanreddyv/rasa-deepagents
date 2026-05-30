@@ -28,7 +28,23 @@ def check_stale_incidents():
                 # If a high priority incident hasn't been updated in 6 minutes
                 if diff > 360:
                     print(f"\n[heartbeat] 🚨 Stale {row['priority'].upper()} detected: {row['id']} — '{row['summary']}' — triggering escalation!\n")
-                    # In a real app we'd call Rasa's external event trigger API here.
+                    # Trigger Rasa's external event trigger API
+                    import requests
+                    try:
+                        resp = requests.post(
+                            "http://localhost:5005/conversations/ops_monitor/trigger_intent",
+                            json={
+                                "name": "EXTERNAL_incident_stale",
+                                "entities": [{"entity": "incident_id", "value": row["id"]}]
+                            },
+                            timeout=5
+                        )
+                        if resp.status_code == 200:
+                            print(f"[heartbeat] Successfully triggered Rasa intent for {row['id']}")
+                        else:
+                            print(f"[heartbeat] Failed to trigger Rasa: {resp.status_code} {resp.text}")
+                    except Exception as req_e:
+                        print(f"[heartbeat] Could not reach Rasa REST endpoint: {req_e}")
             except Exception as e:
                 pass
 
