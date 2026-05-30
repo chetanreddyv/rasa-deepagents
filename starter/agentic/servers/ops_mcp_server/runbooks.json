@@ -16,5 +16,23 @@
     "title": "Triage a production incident",
     "tags": ["incident", "oncall", "bug"],
     "body": "1. Declare severity. 2. Open an incident channel. 3. Assign an incident commander. 4. Mitigate first, root-cause later. 5. Post a timeline."
+  },
+  {
+    "id": "RB-004",
+    "title": "Payments service — connection pool exhaustion",
+    "tags": ["incident", "payments", "database", "oncall"],
+    "body": "1. Check DB connection pool metrics in Grafana (dashboard: payments-db). 2. Kill idle connections: SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle' AND query_start < NOW() - INTERVAL '5 min'. 3. Increase pool max_connections temporarily in payments config. 4. Restart payments pods one at a time. 5. Alert DBA team if pool exhaustion recurs within 30 min."
+  },
+  {
+    "id": "RB-005",
+    "title": "Auth service — high error rate / token validation failures",
+    "tags": ["incident", "auth", "jwt", "oncall"],
+    "body": "1. Check auth service logs for JWT decode errors (Loki: service=auth level=error). 2. Verify the signing key has not rotated unexpectedly (check secrets manager). 3. If key mismatch: re-deploy auth service with correct key, all active tokens will need re-issue. 4. Alert security team if key rotation was unplanned."
+  },
+  {
+    "id": "RB-006",
+    "title": "API gateway — 5xx spike",
+    "tags": ["incident", "api", "gateway", "oncall"],
+    "body": "1. Check upstream service health in k8s: kubectl get pods -n production. 2. Identify the failing upstream from gateway access logs. 3. Roll back the last deployment if the spike correlates with a recent deploy. 4. Enable circuit breaker in gateway config if upstream is flapping. 5. Notify on-call lead if P1."
   }
 ]
