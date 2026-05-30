@@ -896,12 +896,33 @@
         micBtn.addEventListener('touchstart', startMic, {passive: false});
         window.addEventListener('touchend', stopMic);
 
+        let savedChat = JSON.parse(localStorage.getItem('rasaChatHistory') || '[]');
+
+        function renderSavedChat() {
+            if (savedChat.length > 0) {
+                chatHistory.innerHTML = '';
+                savedChat.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = `chat-bubble ${msg.className}`;
+                    div.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
+                    chatHistory.appendChild(div);
+                });
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        }
+        
+        // Load history immediately on script load
+        renderSavedChat();
+
         function appendBubble(sender, text, className) {
             const div = document.createElement('div');
             div.className = `chat-bubble ${className}`;
             div.innerHTML = `<strong>${sender}:</strong> ${text}`;
             chatHistory.appendChild(div);
             chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+            savedChat.push({ sender, text, className });
+            localStorage.setItem('rasaChatHistory', JSON.stringify(savedChat));
         }
 
         function speakText(text) {
