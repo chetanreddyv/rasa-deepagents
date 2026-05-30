@@ -10,8 +10,7 @@ slots:
   incident_id:
     type: text
     mappings:
-      - type: from_entity
-        entity: incident_id
+      - type: controlled
 
 actions:
   - action_escalate_stale_incident
