@@ -378,20 +378,9 @@ class ActionAdvanceStep(Action):
                 print(f"ActionAdvanceStep: objective {updated['id']} auto-completed (all steps done)")
 
         plan_text = render_plan(sender_id)
-        
-        # Simple context summarization
-        recent_events = [e for e in tracker.events if e.get("event") in ("user", "bot")][-10:]
-        summary_lines = []
-        for e in recent_events:
-            actor = "User" if e.get("event") == "user" else "Agent"
-            text = e.get("text", "")
-            if text:
-                summary_lines.append(f"- {actor}: {text[:75]}...")
-        summary_text = "\n".join(summary_lines) if summary_lines else "No recent conversation."
 
         return [
             SlotSet("agent_plan", plan_text),
-            SlotSet("agent_context_summary", summary_text),
             SlotSet("advance_step_number", None),
             SlotSet("advance_step_notes", None),
         ]
@@ -429,9 +418,9 @@ class ActionCheckPlan(Action):
 
 
 class ActionCompletePlan(Action):
-    """Explicitly mark the current objective as completed.
+    """Explicitly mark the current objective as completed and compact context.
 
-    Called at the end of a flow to close out the plan.
+    Called at the end of a flow to close out the plan and save a snapshot.
     """
 
     def name(self) -> Text:
@@ -450,57 +439,17 @@ class ActionCompletePlan(Action):
             print("ActionCompletePlan: no active plan to complete")
             return [SlotSet("agent_plan", ""), SlotSet("agent_objective_id", None)]
 
-        complete_objective(obj["id"])
-        print(f"ActionCompletePlan: {obj['id']} → completed")
-
-        return [
-            SlotSet("agent_plan", ""),
-            SlotSet("agent_objective_id", None),
-        ]
-
-
-class ActionSummarizeContext(Action):
-    """Summarize the recent conversation to prevent the LLM from getting lost."""
-
-    def name(self) -> Text:
-        return "action_summarize_context"
-
-    def run(
-        self,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: Dict[Text, Any],
-    ) -> List[Dict[Text, Any]]:
-        recent_events = [e for e in tracker.events if e.get("event") in ("user", "bot")][-10:]
-        summary_lines = []
-        for e in recent_events:
-            actor = "User" if e.get("event") == "user" else "Agent"
-            text = e.get("text", "")
-            if text:
-                summary_lines.append(f"- {actor}: {text[:75]}...")
-        summary_text = "\n".join(summary_lines) if summary_lines else "No recent conversation."
-
-        print("ActionSummarizeContext built summary.")
-        return [SlotSet("agent_context_summary", summary_text)]
-
-
-class ActionCompactAndComplete(Action):
-    """
-    Call at the END of any flow that constitutes a completed 'task'.
-    Builds a compact summary from current slot values + sets agent_context_summary.
-    Does NOT try to modify tracker.events (append-only — that's a Rasa constraint).
-    """
-    def name(self) -> Text:
-        return "action_compact_and_complete"
-
-    def run(self, dispatcher, tracker, domain):
-        sender_id = tracker.sender_id or "default"
-
         # Collect all non-null, non-internal slot values
-        skip = {"return_value", "agent_context_summary", "session_started_metadata"}
+        INTERNAL_SLOTS = {
+            "return_value", "agent_context_summary", "session_started_metadata",
+            "agent_plan", "agent_objective_id", "plan_template", "plan_linked_item",
+            "advance_step_number", "advance_step_notes", "inputs_valid",
+            "tickets_found", "ticket_list_text", "list_status_filter",
+            "update_success",
+        }
         data_slots = {
             k: v for k, v in tracker.current_slot_values().items()
-            if v is not None and k not in skip
+            if v is not None and k not in INTERNAL_SLOTS
         }
 
         # Build compact summary
@@ -518,8 +467,16 @@ class ActionCompactAndComplete(Action):
         # Persist to session memory store
         append_compact_summary(sender_id, summary)
 
-        # Also load ALL prior summaries for this session and inject into slot
+        # Complete the objective
+        complete_objective(obj["id"])
+        print(f"ActionCompletePlan: {obj['id']} → completed")
+
+        # Load ALL prior summaries for this session and inject into slot
         full_context = get_session_context(sender_id)
 
-        return [SlotSet("agent_context_summary", full_context)]
+        return [
+            SlotSet("agent_plan", ""),
+            SlotSet("agent_objective_id", None),
+            SlotSet("agent_context_summary", full_context),
+        ]
 

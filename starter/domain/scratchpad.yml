@@ -10,7 +10,6 @@ actions:
   - action_advance_step
   - action_check_plan
   - action_complete_plan
-  - action_summarize_context
 
 slots:
   agent_context_summary:

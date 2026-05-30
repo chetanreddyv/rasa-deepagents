@@ -30,12 +30,10 @@ flows:
             then:
               - action: utter_ticket_created
               - action: action_advance_step
-              - action: action_compact_and_complete
               - action: action_complete_plan
                 next: wrap_up
           - else:
               - action: utter_inputs_invalid
-              - action: action_compact_and_complete
               - action: action_complete_plan
                 next: wrap_up
       - id: wrap_up

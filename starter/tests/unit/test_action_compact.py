@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock, patch
-from actions.actions import ActionCompactAndComplete
+from actions.actions import ActionCompletePlan
 from rasa_sdk.events import SlotSet
 
 def make_tracker(slots: dict, sender_id="test_user"):
@@ -8,11 +8,15 @@ def make_tracker(slots: dict, sender_id="test_user"):
     tracker.current_slot_values.return_value = slots
     return tracker
 
-def test_compact_sets_agent_context_summary(tmp_path, monkeypatch):
+@patch("actions.actions.get_active_objective")
+@patch("actions.actions.complete_objective")
+def test_compact_sets_agent_context_summary(mock_complete, mock_get_active, tmp_path, monkeypatch):
     import actions.tickets as t
     monkeypatch.setattr(t, "MEMORY_STORE", tmp_path / "mem.json")
+    
+    mock_get_active.return_value = {"id": "OBJ-123"}
 
-    action = ActionCompactAndComplete()
+    action = ActionCompletePlan()
     tracker = make_tracker({
         "issue_summary": "login broken",
         "issue_category": "bug",
@@ -32,11 +36,15 @@ def test_compact_sets_agent_context_summary(tmp_path, monkeypatch):
     assert "login broken" in slot_events["agent_context_summary"]
     assert "urgent" in slot_events["agent_context_summary"]
 
-def test_compact_skips_null_slots(tmp_path, monkeypatch):
+@patch("actions.actions.get_active_objective")
+@patch("actions.actions.complete_objective")
+def test_compact_skips_null_slots(mock_complete, mock_get_active, tmp_path, monkeypatch):
     import actions.tickets as t
     monkeypatch.setattr(t, "MEMORY_STORE", tmp_path / "mem.json")
+    
+    mock_get_active.return_value = {"id": "OBJ-123"}
 
-    action = ActionCompactAndComplete()
+    action = ActionCompletePlan()
     tracker = make_tracker({
         "issue_summary": "disk full",
         "issue_category": None,   # not yet filled
