@@ -39,5 +39,3 @@ test_cases:
           - action_executed: action_update_ticket_status
           - bot_uttered:
               utter_name: utter_update_success
-          - bot_uttered:
-              utter_name: utter_can_do_something_else

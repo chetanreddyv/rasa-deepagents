@@ -438,7 +438,7 @@ class ActionCompletePlan(Action):
             "agent_plan", "agent_objective_id", "plan_template", "plan_linked_item",
             "advance_step_number", "advance_step_notes", "inputs_valid",
             "tickets_found", "ticket_list_text", "list_status_filter",
-            "update_success",
+            "update_success", "flow_hashes",
         }
         data_slots = {
             k: v for k, v in tracker.current_slot_values().items()

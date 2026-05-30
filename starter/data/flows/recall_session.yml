@@ -10,4 +10,3 @@ flows:
       check_ticket_status is only for looking up a specific ticket by ID.
     steps:
       - action: action_recall_session
-      - action: utter_can_do_something_else

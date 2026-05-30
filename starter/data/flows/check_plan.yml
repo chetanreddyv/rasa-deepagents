@@ -7,4 +7,3 @@ flows:
       Do not trigger during wrap-up or satisfaction collection.
     steps:
       - action: action_check_plan
-      - action: utter_can_do_something_else

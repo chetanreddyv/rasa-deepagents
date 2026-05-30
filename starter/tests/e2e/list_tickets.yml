@@ -28,5 +28,3 @@ test_cases:
           - action_executed: action_list_tickets
           - bot_uttered:
               text_matches: "Here are your tickets:\n• .*TCK-1001.*"
-          - bot_uttered:
-              utter_name: utter_can_do_something_else

@@ -33,9 +33,5 @@ flows:
                   - contact_email: "oncall@example.com"
               - action: action_create_ticket
               - action: action_complete_plan
-                next: wrap_up
           - else:
               - action: action_complete_plan
-                next: wrap_up
-      - id: wrap_up
-        action: utter_can_do_something_else

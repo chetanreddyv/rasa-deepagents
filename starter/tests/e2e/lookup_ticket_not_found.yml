@@ -35,5 +35,3 @@ test_cases:
           - action_executed: action_lookup_ticket
           - bot_uttered:
               utter_name: utter_ticket_not_found
-          - bot_uttered:
-              utter_name: utter_can_do_something_else
