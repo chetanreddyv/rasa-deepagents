@@ -7,6 +7,5 @@ flows:
     steps:
       - collect: list_status_filter
         description: "Optional status filter: open, in_progress, resolved, or closed. The user can say 'all' to skip filtering."
-        ask_before_filling: true
       - action: action_list_tickets
       - action: utter_can_do_something_else

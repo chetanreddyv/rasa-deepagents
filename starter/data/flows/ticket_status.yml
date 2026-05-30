@@ -11,16 +11,16 @@ flows:
       - action: action_advance_step
       - action: action_lookup_ticket
       - action: action_advance_step
-      - next:
+        next:
           - if: slots.ticket_found
             then:
               - action: utter_ticket_status
               - action: action_advance_step
               - action: action_complete_plan
-              - next: wrap_up
+                next: wrap_up
           - else:
               - action: utter_ticket_not_found
               - action: action_complete_plan
-              - next: wrap_up
+                next: wrap_up
       - id: wrap_up
         action: utter_can_do_something_else

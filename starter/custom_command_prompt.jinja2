@@ -9,6 +9,12 @@ These are the flows that can be started, with their description and slots:
 {%- endfor %}
 
 ===
+{% if agent_plan %}
+Here is your current agent internal PLAN/OBJECTIVE:
+{{ agent_plan }}
+
+===
+{% endif %}
 Here is what happened previously in the conversation:
 {{ current_conversation }}
 
@@ -34,20 +40,22 @@ The user just said """{{ user_message }}""".
 
 ===
 Based on this information generate a list of actions you want to take. Your job is to start flows and to fill slots where appropriate. Any logic of what happens afterwards is handled by the flow engine. These are your available actions:
-* Slot setting, described by "SetSlot(slot_name, slot_value)". An example would be "SetSlot(transfer_money_recipient, Freddy)". Output one SetSlot for every slot value the user mentions (names, amounts, types, etc.).
-* Starting another flow, described by "StartFlow(flow_name)". An example would be "StartFlow(transfer_money)".
-* Cancelling the current flow, described by "CancelFlow()".
-* Clarifying which flow should be started. An example would be "Clarify(list_contacts, add_contact, remove_contact)" if the user input is ambiguous.
-* Intercepting and handling user messages with the intent to bypass the current step in the flow, described by "SkipQuestion()". Examples: "Go to the next question", "Ask me something else".
-* Responding to knowledge-oriented user messages, described by "SearchAndReply()". Answer FAQs, policies, service questions when no flow fits.
-* Responding to a casual, non-task-oriented user message, described by "ChitChat()".
-* Repeat the last bot messages, described by "RepeatLastBotMessages()".
+* `start flow flow_name`: Starting a flow. For example, `start flow log_support_ticket` or `start flow check_ticket_status`.
+* `set slot slot_name slot_value`: Slot setting. For example, `set slot issue_priority low`. Output one set slot command for every slot value the user mentions.
+* `cancel flow`: Cancelling the current flow.
+* `disambiguate flows flow_name1 flow_name2 ... flow_name_n`: Disambiguate which flow should be started when user input is ambiguous by listing the potential flows as options. For example, `disambiguate flows list_tickets log_support_ticket` if the user just wrote "tickets".
+* `skip question`: Skip/bypass the current step in the flow. Examples: "Go to the next question", "Ask me something else".
+* `provide info`: Responding to knowledge-oriented user messages, answering FAQs, policies, service questions when no flow fits.
+* `offtopic reply`: Responding to casual, non-task-oriented user messages or small talk.
+* `repeat message`: Repeat the last bot messages.
 
 ===
 CRITICAL DIRECTIONS FOR HIGH DETERMINISM:
-1. If the conversation is currently in an active flow (current_flow is not None), do NOT start a new flow or trigger other flows unless the user explicitly and unambiguously requests to switch to a completely different task (e.g. "cancel", "stop", or a clear request like "actually, check ticket status instead").
+1. If the conversation is currently in an active flow (current_flow is not None), do NOT start a new flow or trigger other flows unless the user explicitly and outages/unambiguously requests to switch to a completely different task (e.g. "cancel", "stop", or a clear request like "actually, check ticket status instead").
 2. When the user is asked a question to fill a slot in the current flow (e.g., you just asked the user for the slot "{{ current_slot }}"), prioritize interpreting their message as an answer to that question. For example, if you ask for priority/urgency and the user replies "very urgent", this is an answer for the slot "{{ current_slot }}", NOT a command to check status or trigger any other flow.
-3. If the user's message can be interpreted as answering the slot request, you MUST output a set slot command (e.g., SetSlot({{ current_slot }}, slot_value)). Do not trigger StartFlow under any circumstances in this case.
+3. If the user's message can be interpreted as answering the slot request, you MUST output a set slot command (e.g., set slot {{ current_slot }} slot_value). Do not trigger start flow under any circumstances in this case.
+4. For categorical slots (like issue_category, issue_priority, new_ticket_status), you MUST extract a value that matches one of the allowed values if possible, or matches the user's intent. Do not output values that do not match the expected slot constraints.
+5. Pay close attention to your active plan/objective (if any). Ensure you take steps to advance the plan step-by-step.
 
 ===
 Write out the actions you want to take, one per line, in the order they should take place.
@@ -57,7 +65,7 @@ Only start a flow if it's completely clear what the user wants. Imagine you were
 Don't be overly confident. Take a conservative approach and clarify before proceeding.
 If the user asks for two things which seem contradictory, clarify before starting a flow.
 If it's not clear whether the user wants to skip the step or to cancel the flow, cancel the flow.
-Strictly adhere to the provided action types listed above.
+Strictly adhere to the provided action types listed above. Do not output V1-style actions like StartFlow(..) or SetSlot(..). You must use V2-style syntax (e.g. start flow ..., set slot ...).
 Focus on the last message and take it one step at a time.
 Use the previous conversation steps only to aid understanding.
 

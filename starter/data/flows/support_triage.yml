@@ -25,17 +25,17 @@ flows:
       - action: action_advance_step
       - action: action_create_ticket
       - action: action_advance_step
-      - next:
+        next:
           - if: slots.inputs_valid
             then:
               - action: utter_ticket_created
               - action: action_advance_step
               - action: action_complete_plan
-              - next: wrap_up
+                next: wrap_up
           - else:
               - action: utter_inputs_invalid
               - action: action_complete_plan
-              - next: wrap_up
+                next: wrap_up
       - id: wrap_up
         action: utter_can_do_something_else
 

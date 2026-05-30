@@ -1,0 +1,32 @@
+# End-to-end test for listing tickets from the persistent store.
+# We stub the custom action so we don't need the action server for CI.
+
+stub_custom_actions:
+  action_list_tickets:
+    responses:
+      - text: "Here are your tickets:\n• **TCK-1001** [open] medium — Example summary (owner: unassigned)"
+    events:
+      - event: slot
+        name: tickets_found
+        value: true
+      - event: slot
+        name: ticket_list_text
+        value: "• **TCK-1001** [open] medium — Example summary (owner: unassigned)"
+
+test_cases:
+  - test_case: user lists all open tickets
+    steps:
+      - user: "Show me my open tickets"
+        assertions:
+          - flow_started:
+              operator: "all"
+              flow_ids:
+                - list_tickets
+          - slot_was_set:
+              - name: list_status_filter
+                value: open
+          - action_executed: action_list_tickets
+          - bot_uttered:
+              text_matches: "Here are your tickets:\n• .*TCK-1001.*"
+          - bot_uttered:
+              utter_name: utter_can_do_something_else

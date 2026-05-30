@@ -1,0 +1,9 @@
+flows:
+  check_plan:
+    description: >
+      Check the current plan status, check where we are in the plan, or
+      get a progress update on the active plan/objective. Triggers when the
+      user asks "where are we in the plan?", "what is the plan?", or similar.
+    steps:
+      - action: action_check_plan
+      - action: utter_can_do_something_else

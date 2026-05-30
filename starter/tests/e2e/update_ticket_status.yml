@@ -1,0 +1,43 @@
+# End-to-end test for updating a ticket's status.
+
+stub_custom_actions:
+  action_update_ticket_status:
+    events:
+      - event: slot
+        name: update_success
+        value: true
+      - event: slot
+        name: update_ticket_id
+        value: "TCK-1001"
+      - event: slot
+        name: new_ticket_status
+        value: "in_progress"
+
+  action_init_plan:
+    events: []
+
+  action_advance_step:
+    events: []
+
+  action_complete_plan:
+    events: []
+
+test_cases:
+  - test_case: user updates ticket status to in progress
+    steps:
+      - user: "Update ticket TCK-1001 to in progress"
+        assertions:
+          - flow_started:
+              operator: "all"
+              flow_ids:
+                - update_ticket_status
+          - slot_was_set:
+              - name: update_ticket_id
+                value: "TCK-1001"
+              - name: new_ticket_status
+                value: "in_progress"
+          - action_executed: action_update_ticket_status
+          - bot_uttered:
+              utter_name: utter_update_success
+          - bot_uttered:
+              utter_name: utter_can_do_something_else

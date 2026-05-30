@@ -1,0 +1,45 @@
+# End-to-end test for agent-internal scratchpad / plan.
+
+stub_custom_actions:
+  action_init_plan:
+    events:
+      - event: slot
+        name: agent_plan
+        value: "1. Understand request\n2. Execute\n3. Confirm with user"
+      - event: slot
+        name: agent_objective_id
+        value: "OBJ-1"
+
+  action_check_plan:
+    events:
+      - event: slot
+        name: agent_plan
+        value: "1. Understand request (done)\n2. Execute (in progress)\n3. Confirm with user (pending)"
+
+  action_advance_step:
+    events: []
+
+  action_complete_plan:
+    events: []
+
+test_cases:
+  - test_case: plan is initialized for a complex support request
+    steps:
+      - user: "I have a complex bug to investigate, can you help?"
+        assertions:
+          - flow_started:
+              operator: "any"
+              flow_ids:
+                - log_support_ticket
+          - action_executed: action_init_plan
+          - slot_was_set:
+              - name: agent_plan
+              - name: agent_objective_id
+
+  - test_case: plan can be refreshed mid-conversation
+    steps:
+      - user: "Where are we in the plan?"
+        assertions:
+          - action_executed: action_check_plan
+          - slot_was_set:
+              - name: agent_plan

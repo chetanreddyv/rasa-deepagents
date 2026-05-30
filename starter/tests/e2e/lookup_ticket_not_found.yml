@@ -11,6 +11,15 @@ stub_custom_actions:
         name: lookup_ticket_id
         value: "TCK-9999"
 
+  action_init_plan:
+    events: []
+
+  action_advance_step:
+    events: []
+
+  action_complete_plan:
+    events: []
+
 test_cases:
   - test_case: user checks status of a non-existing ticket
     steps:

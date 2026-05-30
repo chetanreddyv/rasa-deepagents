@@ -12,6 +12,15 @@ stub_custom_actions:
         name: inputs_valid
         value: true
 
+  action_init_plan:
+    events: []
+
+  action_advance_step:
+    events: []
+
+  action_complete_plan:
+    events: []
+
 test_cases:
   - test_case: user logs an urgent billing ticket
     steps:

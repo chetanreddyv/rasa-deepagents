@@ -16,16 +16,16 @@ flows:
       - action: action_advance_step
       - action: action_update_ticket_status
       - action: action_advance_step
-      - next:
+        next:
           - if: slots.update_success
             then:
               - action: utter_update_success
               - action: action_advance_step
               - action: action_complete_plan
-              - next: wrap_up
+                next: wrap_up
           - else:
               - action: utter_update_failed
               - action: action_complete_plan
-              - next: wrap_up
+                next: wrap_up
       - id: wrap_up
         action: utter_can_do_something_else
