@@ -38,24 +38,31 @@ def get_runbook(runbook_id: str) -> str:
 @mcp.tool()
 def search_past_incidents(service_name: str) -> str:
     """Search past incidents and tickets for a specific service or symptom."""
-    db_path = Path(".data/work_items.db")
+    # Resolve path relative to THIS file, not CWD
+    db_path = Path(__file__).parents[4] / ".data" / "work_items.db"
+
     if not db_path.exists():
-        return json.dumps({"error": "Database not found."})
-    
+        # Return graceful fallback instead of error so LLM doesn't hallucinate
+        return json.dumps({
+            "results": [],
+            "note": "No incident history found. This may be the first incident for this service."
+        })
+
     try:
         with sqlite3.connect(str(db_path)) as conn:
             conn.row_factory = sqlite3.Row
+            # Use SQL LIKE for DB-level filtering instead of Python loop
+            pattern = f"%{service_name.lower()}%"
             rows = conn.execute(
-                "SELECT id, summary, category, status, priority, created_at FROM work_items ORDER BY created_at DESC LIMIT 200"
+                "SELECT id, summary, category, status, priority, created_at "
+                "FROM work_items "
+                "WHERE lower(summary) LIKE ? OR lower(category) LIKE ? "
+                "ORDER BY created_at DESC LIMIT 5",
+                (pattern, pattern),
             ).fetchall()
-            
-        hits = [
-            dict(r) for r in rows
-            if service_name.lower() in (r["summary"] + " " + r["category"]).lower()
-        ]
-        return json.dumps({"results": hits[:5]})
+        return json.dumps({"results": [dict(r) for r in rows]})
     except Exception as e:
-        return json.dumps({"error": str(e)})
+        return json.dumps({"error": str(e), "results": []})
 
 
 @mcp.tool()

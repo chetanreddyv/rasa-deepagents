@@ -54,18 +54,26 @@
 
         .main-container {
             display: flex;
+            flex-direction: column;
             flex: 1;
             overflow: hidden;
             padding: 1rem;
             gap: 1rem;
         }
 
+        .top-row {
+            display: flex;
+            flex: 3;
+            gap: 1rem;
+            min-height: 0;
+        }
+
         .terminals-container {
             flex: 2;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
+            min-height: 0;
         }
 
         .terminal-panel {
@@ -171,17 +179,59 @@
             border-top: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 0.5rem;
             background-color: rgba(0,0,0,0.1);
+        }
+
+        .input-row {
+            display: flex;
+            width: 100%;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .send-btn {
+            background-color: var(--accent-color);
+            color: #1e2130;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            background-color: var(--accent-hover);
         }
 
         .mic-btn {
             background: linear-gradient(135deg, var(--accent-color), #89ddff);
             border: none;
             border-radius: 50%;
-            width: 64px;
-            height: 64px;
+            width: 48px;
+            height: 48px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -189,6 +239,7 @@
             box-shadow: 0 4px 15px rgba(199, 146, 234, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
             outline: none;
+            flex-shrink: 0;
         }
 
         .mic-btn:hover {
@@ -214,14 +265,15 @@
 
         .mic-icon {
             fill: #1e2130;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
         }
 
         .status-text {
             font-size: 0.8rem;
             color: #89ddff;
             height: 1.2rem;
+            text-align: center;
         }
 
         /* Terminal Logs Colors */
@@ -251,15 +303,8 @@
             background-color: #f07178; /* red by default, turned green when running */
         }
         
-        .right-column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
         .data-container {
-            flex: 1;
+            flex: 3;
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -276,23 +321,106 @@
             font-size: 0.85rem;
         }
 
-        .db-section-title {
-            color: var(--accent-color);
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            margin-top: 1rem;
+        .kanban-board {
+            display: flex;
+            gap: 1rem;
+            height: 100%;
+            overflow-x: auto;
         }
-        .db-section-title:first-child { margin-top: 0; }
-
-        .db-item {
+        .kanban-col {
+            flex: 1;
+            min-width: 280px;
             background-color: rgba(0,0,0,0.2);
+            border-radius: 6px;
             padding: 0.5rem;
-            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .kanban-col-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            text-align: center;
             margin-bottom: 0.5rem;
+        }
+        .kanban-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             border-left: 3px solid var(--accent-color);
         }
-        .db-item-title { font-weight: bold; color: #fff; margin-bottom: 0.25rem; }
-        .db-item-status { font-size: 0.75rem; color: var(--user-bubble); }
+        .kanban-card.urgent {
+            border-left-color: #f07178;
+        }
+        .kanban-card-title {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+        .kanban-card-meta {
+            font-size: 0.75rem;
+            color: var(--user-bubble);
+            margin-bottom: 0.5rem;
+        }
+        .kanban-step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.5rem;
+        }
+        .kanban-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .kanban-step-item.done {
+            text-decoration: line-through;
+            color: #666;
+        }
+        .step-checkbox {
+            margin-top: 0.15rem;
+            accent-color: var(--agent-bubble);
+        }
+        .memory-pulse-container {
+            height: 24px;
+            background-color: var(--panel-bg);
+            border-top: 1px solid var(--border-color);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .memory-pulse-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(130, 170, 255, 0.4), rgba(199, 146, 234, 0.8));
+            transition: width 0.3s ease;
+        }
+        .memory-pulse-bar.compaction {
+            animation: drain 1s ease forwards;
+        }
+        @keyframes drain {
+            0% { background: #ff5370; }
+            100% { width: 0%; background: linear-gradient(90deg, rgba(130, 170, 255, 0.4), rgba(199, 146, 234, 0.8)); }
+        }
+        .memory-pulse-text {
+            position: relative;
+            font-size: 0.75rem;
+            color: #fff;
+            z-index: 1;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
 
     </style>
     <!-- Include Socket.io client -->
@@ -314,6 +442,46 @@
     </header>
 
     <div class="main-container">
+        <!-- Top Row: Live Data + Chat UI -->
+        <div class="top-row">
+            <!-- Live Data UI -->
+            <div class="data-container">
+                <div class="panel-header">Live Agent Database</div>
+                <div class="data-content" id="data-content">
+                    <div style="color: #666; text-align: center; margin-top: 2rem;">Waiting for data...</div>
+                </div>
+            </div>
+
+            <!-- Chat UI -->
+            <div class="chat-container">
+                <div class="panel-header">Live Interaction</div>
+                <div class="chat-history" id="chat-history">
+                    <div class="chat-bubble bubble-agent">
+                        <strong>Coworker:</strong> Hi! I am your AI coworker. Press the microphone button and speak to interact with me.
+                    </div>
+                </div>
+                
+                <div class="chat-controls">
+                    <div class="status-text" id="status-text">Ready</div>
+                    <div class="input-row">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." />
+                        <button id="send-btn" class="send-btn" title="Send text">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                        <button class="mic-btn" id="mic-btn" title="Click to start/stop speaking">
+                            <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Terminal Grid -->
         <div class="terminals-container">
             <div class="terminal-panel" id="panel-mcp">
@@ -364,37 +532,11 @@
                 <div class="terminal-output" id="term-heartbeat"></div>
             </div>
         </div>
+    </div>
 
-        <!-- Right Column: Live Data + Chat UI -->
-        <div class="right-column">
-            <!-- Live Data UI -->
-            <div class="data-container">
-                <div class="panel-header">Live Agent Database</div>
-                <div class="data-content" id="data-content">
-                    <div style="color: #666; text-align: center; margin-top: 2rem;">Waiting for data...</div>
-                </div>
-            </div>
-
-            <!-- Chat UI -->
-            <div class="chat-container">
-                <div class="panel-header">Live Interaction</div>
-                <div class="chat-history" id="chat-history">
-                    <div class="chat-bubble bubble-agent">
-                        <strong>Coworker:</strong> Hi! I am your AI coworker. Press the microphone button and speak to interact with me.
-                    </div>
-                </div>
-                
-                <div class="chat-controls">
-                    <div class="status-text" id="status-text">Ready</div>
-                    <button class="mic-btn" id="mic-btn" title="Click to start/stop speaking">
-                        <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="memory-pulse-container">
+        <div class="memory-pulse-bar" id="memory-pulse-bar"></div>
+        <span class="memory-pulse-text" id="memory-pulse-text">MEMORY [0 tokens]</span>
     </div>
 
     <script>
@@ -446,63 +588,115 @@
         
         socket.on('db-state', (data) => {
             const container = document.getElementById('data-content');
-            let html = '';
             
-            // DB work_items
-            if (data.tickets && data.tickets.length > 0) {
-                html += '<div class="db-section-title">Work Items (DB)</div>';
-                data.tickets.forEach(t => {
-                    const priorityColor = (t.priority === 'urgent' || t.priority === 'high') ? '#f07178' : '#89ddff';
-                    html += `
-                        <div class="db-item">
-                            <div class="db-item-title">${t.id}: ${t.summary}</div>
-                            <div class="db-item-status">
-                                Status: <strong>${t.status}</strong>
-                                ${t.priority ? ` · Priority: <span style="color:${priorityColor}">${t.priority}</span>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+            let items = data.tickets || [];
+            let plans = data.plans || [];
+            let steps = data.steps || [];
 
-            // JSON tickets
-            if (data.json_tickets && data.json_tickets.length > 0) {
-                html += '<div class="db-section-title">Tickets (JSON)</div>';
-                data.json_tickets.forEach(t => {
-                    const priorityColor = (t.priority === 'urgent' || t.priority === 'high') ? '#f07178' : '#89ddff';
-                    html += `
-                        <div class="db-item">
-                            <div class="db-item-title">${t.id}: ${t.summary}</div>
-                            <div class="db-item-status">
-                                Status: <strong>${t.status}</strong>
-                                ${t.priority ? ` · Priority: <span style="color:${priorityColor}">${t.priority}</span>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+            // Group steps by objective_id
+            let stepsByObjective = {};
+            steps.forEach(s => {
+                if (!stepsByObjective[s.objective_id]) stepsByObjective[s.objective_id] = [];
+                stepsByObjective[s.objective_id].push(s);
+            });
+
+            // For Kanban view, let's group Plans into columns by status
+            // Pending/Active vs Completed
+            let activePlans = plans.filter(p => p.status !== 'completed' && p.status !== 'done');
+            let completedPlans = plans.filter(p => p.status === 'completed' || p.status === 'done');
+            let pendingTickets = items.filter(t => t.status !== 'closed');
             
-            if (data.plans && data.plans.length > 0) {
-                html += '<div class="db-section-title">Agent Runbooks</div>';
-                data.plans.forEach(p => {
-                    const statusIcon = p.status === 'completed' ? '✅' : p.status === 'active' ? '🔄' : '❌';
-                    html += `
-                        <div class="db-item" style="border-left-color: var(--agent-bubble)">
-                            <div class="db-item-title">${statusIcon} ${p.id}: ${p.title}</div>
-                            <div class="db-item-status" style="color: var(--agent-bubble)">Status: <strong>${p.status}</strong></div>
-                        </div>
-                    `;
-                });
-            }
+            let html = '<div class="kanban-board">';
             
-            if (!html) html = '<div style="color: #666; text-align: center; margin-top: 2rem;">No active items found</div>';
+            // Col 1: Incidents (Tickets)
+            html += '<div class="kanban-col"><div class="kanban-col-title">Active Incidents</div>';
+            if (pendingTickets.length === 0) html += '<div style="color:#666;text-align:center;font-size:0.8rem">No incidents</div>';
+            pendingTickets.forEach(t => {
+                const isUrgent = t.priority === 'urgent' || t.priority === 'high';
+                const cardClass = isUrgent ? 'kanban-card urgent' : 'kanban-card';
+                html += `
+                    <div class="${cardClass}">
+                        <div class="kanban-card-title">${t.id}: ${t.summary}</div>
+                        <div class="kanban-card-meta">Priority: ${t.priority || 'normal'} • Status: ${t.status}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            // Col 2: Active Runbooks / Plans
+            html += '<div class="kanban-col"><div class="kanban-col-title">Active Runbooks</div>';
+            if (activePlans.length === 0) html += '<div style="color:#666;text-align:center;font-size:0.8rem">No active runbooks</div>';
+            activePlans.forEach(p => {
+                const objSteps = stepsByObjective[p.id] || [];
+                let stepsHtml = '';
+                if (objSteps.length > 0) {
+                    stepsHtml = '<ul class="kanban-step-list">';
+                    objSteps.forEach(s => {
+                        const isDone = s.status === 'done';
+                        const checkHtml = isDone ? '<input type="checkbox" class="step-checkbox" checked disabled>' : '<input type="checkbox" class="step-checkbox" disabled>';
+                        stepsHtml += `
+                            <li class="kanban-step-item ${isDone ? 'done' : ''}">
+                                ${checkHtml}
+                                <span>${s.description}</span>
+                            </li>
+                        `;
+                    });
+                    stepsHtml += '</ul>';
+                }
+
+                html += `
+                    <div class="kanban-card" style="border-left-color: var(--agent-bubble)">
+                        <div class="kanban-card-title">🔄 ${p.id}: ${p.title}</div>
+                        <div class="kanban-card-meta">Status: ${p.status}</div>
+                        ${stepsHtml}
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            // Col 3: Completed Runbooks
+            html += '<div class="kanban-col"><div class="kanban-col-title">Completed</div>';
+            if (completedPlans.length === 0) html += '<div style="color:#666;text-align:center;font-size:0.8rem">No completed items</div>';
+            completedPlans.forEach(p => {
+                html += `
+                    <div class="kanban-card" style="border-left-color: #666; opacity: 0.8">
+                        <div class="kanban-card-title" style="color: #bbb;">✅ ${p.id}: ${p.title}</div>
+                        <div class="kanban-card-meta" style="color: #666;">Status: ${p.status}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            html += '</div>'; // close kanban-board
             container.innerHTML = html;
+        });
+
+        // Memory Pulse Events
+        const memoryBar = document.getElementById('memory-pulse-bar');
+        const memoryText = document.getElementById('memory-pulse-text');
+        
+        socket.on('memory-pulse', (data) => {
+            // data format: { tokens: 1500, max: 4000, compaction: false }
+            if (data.compaction) {
+                memoryBar.classList.add('compaction');
+                memoryText.innerText = `MEMORY COMPACTION! [${data.tokens} tokens]`;
+                setTimeout(() => {
+                    memoryBar.classList.remove('compaction');
+                    memoryBar.style.width = '0%';
+                }, 1000);
+            } else {
+                const percent = Math.min(100, Math.max(0, (data.tokens / data.max) * 100));
+                memoryBar.style.width = percent + '%';
+                memoryText.innerText = `MEMORY [${data.tokens} / ${data.max} tokens]`;
+            }
         });
 
         // --- 2. Web Speech API (Voice & TTS) and Rasa REST ---
         const micBtn = document.getElementById('mic-btn');
         const statusText = document.getElementById('status-text');
         const chatHistory = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
 
         const RASA_URL = "http://localhost:5005/webhooks/rest/webhook";
         const senderId = "dashboard-user";
@@ -654,6 +848,23 @@
                 window.speechSynthesis.getVoices();
             };
         }
+
+        async function handleSendText() {
+            const textToSend = chatInput.value.trim();
+            if (!textToSend) return;
+            
+            chatInput.value = "";
+            appendBubble('You', textToSend, 'bubble-user');
+            statusText.innerText = "Thinking...";
+            await sendToRasa(textToSend);
+        }
+
+        sendBtn.addEventListener('click', handleSendText);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSendText();
+            }
+        });
     </script>
 </body>
 </html>

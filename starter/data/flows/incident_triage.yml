@@ -33,5 +33,11 @@ flows:
                   - contact_email: "oncall@example.com"
               - action: action_create_ticket
               - action: action_complete_plan
+              - action: action_compact_memory
+              - action: utter_triage_complete
+                next: END
           - else:
               - action: action_complete_plan
+              - action: action_compact_memory
+              - action: utter_triage_aborted
+                next: END

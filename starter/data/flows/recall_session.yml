@@ -5,8 +5,11 @@ flows:
       or recently completed tasks. Triggers when the user asks about past
       work WITHOUT providing a specific ticket ID — for example: "what was
       the recent ticket?", "what did we work on?", "what was the last issue?",
-      "what do you remember?", "what tickets did we create?", "summarize
-      what happened", or similar. Do NOT use check_ticket_status for these;
+      "summarize what happened", or similar. Do NOT use check_ticket_status for these;
       check_ticket_status is only for looking up a specific ticket by ID.
+    nlu_trigger:
+      - intent: recall_session
+        conditions:
+          - active_flow: null
     steps:
       - action: action_recall_session

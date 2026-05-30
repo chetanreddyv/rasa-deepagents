@@ -53,3 +53,7 @@ responses:
     - text: "Done — I've logged ticket {ticket_id} as a {issue_priority}-priority {issue_category} issue. Updates will go to {contact_email}."
   utter_inputs_invalid:
     - text: "I couldn't log the ticket because some information was missing or invalid. Please check the email format or other details and try again."
+  utter_triage_complete:
+    - text: "✅ Incident logged and runbook initiated. I'll monitor this and check back in 10 minutes."
+  utter_triage_aborted:
+    - text: "Understood — triage aborted. Let me know when you're ready to proceed."

@@ -492,6 +492,78 @@ class ActionRecallSession(Action):
         return [SlotSet("agent_context_summary", context)]
 
 
+class ActionCompactMemory(Action):
+    def name(self) -> Text:
+        return "action_compact_memory"
+
+    def run(self, dispatcher, tracker, domain):
+        import json
+        import os
+        from pathlib import Path
+        from openai import OpenAI
+
+        # Gather last N turns from tracker
+        events = list(tracker.events)
+        turns = []
+        for e in events:
+            if e.get("event") == "user":
+                turns.append(f"User: {e.get('text', '')}")
+            elif e.get("event") == "bot":
+                turns.append(f"Wally: {e.get('text', '')}")
+
+        if len(turns) < 4:
+            return []  # Not enough to compact
+
+        transcript = "\n".join(turns[-20:])  # Last 20 turns max
+
+        # Call Nebius LLM for compaction
+        client = OpenAI(
+            base_url="https://api.studio.nebius.com/v1/",
+            api_key=os.environ.get("NEBIUS_API_KEY"),
+        )
+        try:
+            resp = client.chat.completions.create(
+                model="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                messages=[
+                    {"role": "system", "content": (
+                        "Summarize this ops session in 3-5 bullet points. "
+                        "Include: service affected, symptoms, actions taken, outcome, open items."
+                    )},
+                    {"role": "user", "content": transcript},
+                ],
+                max_tokens=300,
+            )
+            summary = resp.choices[0].message.content.strip()
+        except Exception as e:
+            summary = f"Session summary unavailable ({e})"
+
+        # Write to session_memory.json
+        from actions.work_items import utc_now
+        mem_path = Path(".data/session_memory.json")
+        mem_path.parent.mkdir(exist_ok=True)
+        memory = {}
+        if mem_path.exists():
+            try:
+                memory = json.loads(mem_path.read_text())
+            except json.JSONDecodeError:
+                memory = {}
+
+        sender = tracker.sender_id
+        if sender not in memory:
+            memory[sender] = []
+
+        memory[sender].append({
+            "saved_at": utc_now(),
+            "summary": summary,
+            "turn_count": len(turns),
+        })
+        # Keep last 10 summaries per sender
+        memory[sender] = memory[sender][-10:]
+        mem_path.write_text(json.dumps(memory, indent=2))
+
+        return []
+
+
 class ActionEscalateStaleIncident(Action):
     """Handle automatic escalation from the heartbeat monitor."""
 

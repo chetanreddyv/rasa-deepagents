@@ -1,55 +1,47 @@
 import time
-import sqlite3
+import requests
+import json
 from pathlib import Path
 from datetime import datetime, timezone
 
-DB_PATH = Path(".data/work_items.db")
+RASA_URL = "http://localhost:5005/webhooks/rest/webhook"
+SENDER   = "monitor_bot"
+POLL_INTERVAL = 30  # seconds
 
-def check_stale_incidents():
-    if not DB_PATH.exists():
-        return
-    
-    with sqlite3.connect(str(DB_PATH)) as conn:
-        conn.row_factory = sqlite3.Row
-        # Find active incidents/tickets that are high or urgent priority
+def check_for_incidents():
+    """Read .data/incidents.json or work_items.db and return any P1s not yet triaged."""
+    db_path = Path(".data/work_items.db")
+    if not db_path.exists():
+        return []
+    import sqlite3
+    with sqlite3.connect(str(db_path)) as conn:
         rows = conn.execute(
-            """SELECT id, summary, priority, updated_at 
-               FROM work_items 
-               WHERE status IN ('open', 'in_progress') 
-               AND priority IN ('high', 'urgent')"""
+            "SELECT id, summary, priority FROM work_items "
+            "WHERE priority='urgent' AND status='open' "
+            "ORDER BY created_at DESC LIMIT 3"
         ).fetchall()
-        
-        now = datetime.now(timezone.utc)
-        for row in rows:
-            try:
-                updated_at = datetime.fromisoformat(row["updated_at"].replace("Z", "+00:00"))
-                diff = (now - updated_at).total_seconds()
-                
-                # If a high priority incident hasn't been updated in 6 minutes
-                if diff > 360:
-                    print(f"\n[heartbeat] 🚨 Stale {row['priority'].upper()} detected: {row['id']} — '{row['summary']}' — triggering escalation!\n")
-                    # Trigger Rasa's external event trigger API
-                    import requests
-                    try:
-                        resp = requests.post(
-                            "http://localhost:5005/conversations/ops_monitor/trigger_intent",
-                            json={
-                                "name": "EXTERNAL_incident_stale",
-                                "entities": [{"entity": "incident_id", "value": row["id"]}]
-                            },
-                            timeout=5
-                        )
-                        if resp.status_code == 200:
-                            print(f"[heartbeat] Successfully triggered Rasa intent for {row['id']}")
-                        else:
-                            print(f"[heartbeat] Failed to trigger Rasa: {resp.status_code} {resp.text}")
-                    except Exception as req_e:
-                        print(f"[heartbeat] Could not reach Rasa REST endpoint: {req_e}")
-            except Exception as e:
-                pass
+    return rows
+
+def inject_incident(incident_id, summary, priority):
+    """POST a synthetic message into Rasa as the monitor sender."""
+    message = f"SYSTEM_ALERT: {priority.upper()} incident detected — {summary} (ref: {incident_id})"
+    try:
+        resp = requests.post(
+            RASA_URL,
+            json={"sender": SENDER, "message": message},
+            timeout=5,
+        )
+        print(f"[{datetime.now(timezone.utc).isoformat()}] Injected: {message} → {resp.status_code}")
+    except requests.exceptions.ConnectionError:
+        print("Rasa not reachable yet, retrying...")
 
 if __name__ == "__main__":
-    print("[heartbeat] Monitoring work_items.db for stale incidents...")
+    print(f"Heartbeat monitor started. Polling every {POLL_INTERVAL}s.")
+    notified = set()
     while True:
-        check_stale_incidents()
-        time.sleep(10)
+        incidents = check_for_incidents()
+        for inc_id, summary, priority in incidents:
+            if inc_id not in notified:
+                inject_incident(inc_id, summary, priority)
+                notified.add(inc_id)
+        time.sleep(POLL_INTERVAL)

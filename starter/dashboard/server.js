@@ -137,7 +137,7 @@ function pollDatabase(targetSocket) {
 import sqlite3, json, os, sys
 db = os.path.join('.data', 'work_items.db')
 tickets_file = os.path.join('.data', 'tickets.json')
-result = {"tickets": [], "plans": [], "json_tickets": []}
+result = {"tickets": [], "plans": [], "json_tickets": [], "steps": []}
 
 # SQLite work_items + objectives
 if os.path.exists(db):
@@ -146,6 +146,7 @@ if os.path.exists(db):
         conn.row_factory = sqlite3.Row
         result["tickets"] = [dict(r) for r in conn.execute("SELECT id, kind, summary, priority, status FROM work_items ORDER BY created_at DESC LIMIT 10").fetchall()]
         result["plans"]   = [dict(r) for r in conn.execute("SELECT id, title, status FROM agent_objectives ORDER BY created_at DESC LIMIT 10").fetchall()]
+        result["steps"]   = [dict(r) for r in conn.execute("SELECT objective_id, step_number, description, status FROM agent_steps ORDER BY objective_id, step_number").fetchall()]
         conn.close()
     except Exception as e:
         result["db_error"] = str(e)

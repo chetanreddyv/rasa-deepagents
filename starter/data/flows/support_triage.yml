@@ -37,7 +37,9 @@ flows:
               - action: utter_ticket_created
               - action: action_advance_step
               - action: action_complete_plan
+                next: END
           - else:
               - action: utter_inputs_invalid
               - action: action_complete_plan
+                next: END
 

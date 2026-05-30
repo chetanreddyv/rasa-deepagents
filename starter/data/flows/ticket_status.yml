@@ -17,6 +17,8 @@ flows:
               - action: utter_ticket_status
               - action: action_advance_step
               - action: action_complete_plan
+                next: END
           - else:
               - action: utter_ticket_not_found
               - action: action_complete_plan
+                next: END

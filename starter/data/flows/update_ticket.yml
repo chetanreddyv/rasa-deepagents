@@ -22,6 +22,8 @@ flows:
               - action: utter_update_success
               - action: action_advance_step
               - action: action_complete_plan
+                next: END
           - else:
               - action: utter_update_failed
               - action: action_complete_plan
+                next: END
