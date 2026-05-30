@@ -1,5 +1,8 @@
 version: "3.1"
 
+actions:
+  - action_recall_session
+
 slots:
   return_value:
     type: any
@@ -8,7 +11,7 @@ slots:
 
 responses:
   utter_can_do_something_else:
-    - text: "Anything else I can help you with?"
+    - text: "Is there any other task I can assist you with?"
   utter_goodbye:
     - text: "Thanks for working with me — I'll be right here whenever you need me."
   utter_chitchat:

@@ -69,6 +69,7 @@ CRITICAL DIRECTIONS FOR HIGH DETERMINISM:
 3. If the user's message can be interpreted as answering the slot request, you MUST output a set slot command (e.g., set slot {{ current_slot }} slot_value). Do not trigger start flow under any circumstances in this case.
 4. For categorical slots (like issue_category, issue_priority, new_ticket_status), you MUST extract a value that matches one of the allowed values if possible, or matches the user's intent. Do not output values that do not match the expected slot constraints.
 5. Pay close attention to your active plan/objective (if any). Ensure you take steps to advance the plan step-by-step.
+6. Do NOT add conversational closing remarks or wrap-ups using `offtopic reply` after a flow has just completed. The deterministic flow engine already handles wrap-up.
 
 ===
 Write out the actions you want to take, one per line, in the order they should take place.

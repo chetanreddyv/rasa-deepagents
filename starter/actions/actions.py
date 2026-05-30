@@ -412,7 +412,10 @@ class ActionCheckPlan(Action):
         events: List[Dict[Text, Any]] = [SlotSet("agent_plan", plan_text)]
 
         if progress["has_plan"]:
+            dispatcher.utter_message(text=f"Here's where we are:\n\n{plan_text}")
             events.append(SlotSet("agent_objective_id", progress["objective_id"]))
+        else:
+            dispatcher.utter_message(text="No active plan right now.")
 
         return events
 
@@ -479,4 +482,22 @@ class ActionCompletePlan(Action):
             SlotSet("agent_objective_id", None),
             SlotSet("agent_context_summary", full_context),
         ]
+
+
+class ActionRecallSession(Action):
+    def name(self):
+        return "action_recall_session"
+
+    def run(self, dispatcher, tracker, domain):
+        sender_id = tracker.sender_id or "default"
+        context = get_session_context(sender_id)
+        if not context:
+            dispatcher.utter_message(
+                text="I don't have any notes from previous sessions yet."
+            )
+        else:
+            dispatcher.utter_message(
+                text=f"Here's what I remember from our previous sessions:\n\n{context}"
+            )
+        return [SlotSet("agent_context_summary", context)]
 

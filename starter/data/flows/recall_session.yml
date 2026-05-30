@@ -1,0 +1,9 @@
+flows:
+  recall_session:
+    description: >
+      Recall what happened in previous conversations or sessions.
+      Triggers when the user asks "what did we work on?", "what was
+      the last issue?", "what do you remember?", or similar.
+    steps:
+      - action: action_recall_session
+      - action: utter_can_do_something_else

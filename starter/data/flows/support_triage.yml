@@ -10,6 +10,12 @@ flows:
     steps:
       - set_slots:
           - plan_template: "support_ticket"
+          - issue_summary: null
+          - issue_category: null
+          - issue_priority: null
+          - contact_email: null
+          - ticket_id: null
+          - inputs_valid: null
       - action: action_init_plan
       - collect: issue_summary
         description: A short free-text description of the problem the user is reporting.
