@@ -9,12 +9,6 @@ These are the flows that can be started, with their description and slots:
 {%- endfor %}
 
 ===
-{% if agent_plan %}
-Here is your current agent internal PLAN/OBJECTIVE:
-{{ agent_plan }}
-
-===
-{% endif %}
 Here is what happened previously in the conversation:
 {{ current_conversation }}
 
@@ -36,6 +30,25 @@ This means you can only set a slot if you first start a flow that requires that 
 If you start a flow, first start the flow and then optionally fill that flow's slots with information the user provided in their message.
 
 ===
+{% if agent_context_summary %}
+[CONTEXT SO FAR]
+{{ agent_context_summary }}
+[END CONTEXT]
+
+===
+{% endif %}
+{% if agent_plan %}
+AGENT INTERNAL PLAN (authoritative — do not deviate):
+{{ agent_plan }}
+
+RULES:
+- The current step marked ▶ is the ONLY step you are working on now.
+- Do NOT claim a step is done unless action_advance_step has been called.
+- Do NOT jump ahead to future steps.
+- Do NOT modify the plan structure in your response.
+
+===
+{% endif %}
 The user just said """{{ user_message }}""".
 
 ===

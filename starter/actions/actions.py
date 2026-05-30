@@ -286,15 +286,26 @@ class ActionInitPlan(Action):
         template_name = tracker.get_slot("plan_template") or ""
         linked_item = tracker.get_slot("plan_linked_item") or ""
 
+        if not template_name or template_name not in PLAN_TEMPLATES:
+            dispatcher.utter_message(
+                text="[Internal: plan_template not set or unknown. Skipping plan init.]"
+            )
+            return []
+
         # Check if there's already an active objective
         existing = get_active_objective(sender_id)
         if existing:
-            print(f"ActionInitPlan: active plan already exists — {existing['id']}: {existing['title']}")
-            plan_text = render_plan(sender_id)
-            return [
-                SlotSet("agent_plan", plan_text),
-                SlotSet("agent_objective_id", existing["id"]),
-            ]
+            linked = existing.get("linked_item", "")
+            if linked != linked_item:
+                complete_objective(existing["id"])  # close stale objective
+                existing = None
+            else:
+                print(f"ActionInitPlan: active plan already exists — {existing['id']}: {existing['title']}")
+                plan_text = render_plan(sender_id)
+                return [
+                    SlotSet("agent_plan", plan_text),
+                    SlotSet("agent_objective_id", existing["id"]),
+                ]
 
         # Resolve the template
         template = PLAN_TEMPLATES.get(template_name, {})
@@ -341,41 +352,46 @@ class ActionAdvanceStep(Action):
             print("ActionAdvanceStep: no active plan")
             return [SlotSet("agent_plan", "")]
 
-        step_number = tracker.get_slot("advance_step_number")
         notes = tracker.get_slot("advance_step_notes") or ""
 
-        # If no explicit step number, find the current in_progress step
-        if not step_number:
-            for s in obj.get("steps", []):
-                if s["status"] == "in_progress":
-                    step_number = s["step_number"]
-                    break
-            if not step_number:
-                # Find the first pending step
-                for s in obj.get("steps", []):
-                    if s["status"] == "pending":
-                        step_number = s["step_number"]
-                        break
+        in_progress = next(
+            (s for s in obj.get("steps", []) if s["status"] == "in_progress"), None
+        )
+        if not in_progress:
+            # nothing to advance — return unchanged plan
+            return [SlotSet("agent_plan", render_plan(sender_id))]
+            
+        step_number = in_progress["step_number"]
 
-        if step_number:
-            step_number = int(step_number)
-            advance_step(obj["id"], step_number, notes)
-            print(f"ActionAdvanceStep: {obj['id']} step {step_number} → done ({notes})")
+        advance_step(obj["id"], step_number, notes)
+        print(f"ActionAdvanceStep: {obj['id']} step {step_number} → done ({notes})")
 
-            # Check if all steps are done → auto-complete objective
-            updated = get_active_objective(sender_id)
-            if updated:
-                all_done = all(
-                    s["status"] in ("done", "skipped")
-                    for s in updated.get("steps", [])
-                )
-                if all_done:
-                    complete_objective(updated["id"])
-                    print(f"ActionAdvanceStep: objective {updated['id']} auto-completed (all steps done)")
+        # Check if all steps are done → auto-complete objective
+        updated = get_active_objective(sender_id)
+        if updated:
+            all_done = all(
+                s["status"] in ("done", "skipped")
+                for s in updated.get("steps", [])
+            )
+            if all_done:
+                complete_objective(updated["id"])
+                print(f"ActionAdvanceStep: objective {updated['id']} auto-completed (all steps done)")
 
         plan_text = render_plan(sender_id)
+        
+        # Simple context summarization
+        recent_events = [e for e in tracker.events if e.get("event") in ("user", "bot")][-10:]
+        summary_lines = []
+        for e in recent_events:
+            actor = "User" if e.get("event") == "user" else "Agent"
+            text = e.get("text", "")
+            if text:
+                summary_lines.append(f"- {actor}: {text[:75]}...")
+        summary_text = "\n".join(summary_lines) if summary_lines else "No recent conversation."
+
         return [
             SlotSet("agent_plan", plan_text),
+            SlotSet("agent_context_summary", summary_text),
             SlotSet("advance_step_number", None),
             SlotSet("advance_step_notes", None),
         ]
@@ -441,4 +457,30 @@ class ActionCompletePlan(Action):
             SlotSet("agent_plan", ""),
             SlotSet("agent_objective_id", None),
         ]
+
+
+class ActionSummarizeContext(Action):
+    """Summarize the recent conversation to prevent the LLM from getting lost."""
+
+    def name(self) -> Text:
+        return "action_summarize_context"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        recent_events = [e for e in tracker.events if e.get("event") in ("user", "bot")][-10:]
+        summary_lines = []
+        for e in recent_events:
+            actor = "User" if e.get("event") == "user" else "Agent"
+            text = e.get("text", "")
+            if text:
+                summary_lines.append(f"- {actor}: {text[:75]}...")
+        summary_text = "\n".join(summary_lines) if summary_lines else "No recent conversation."
+
+        print("ActionSummarizeContext built summary.")
+        return [SlotSet("agent_context_summary", summary_text)]
+
 

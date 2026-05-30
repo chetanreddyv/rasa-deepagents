@@ -10,8 +10,13 @@ actions:
   - action_advance_step
   - action_check_plan
   - action_complete_plan
+  - action_summarize_context
 
 slots:
+  agent_context_summary:
+    type: text
+    mappings:
+      - type: controlled
   # The rendered plan text — injected into the LLM prompt every turn.
   # This is the agent's "cognitive state": what it's working on and
   # how far along it is.
