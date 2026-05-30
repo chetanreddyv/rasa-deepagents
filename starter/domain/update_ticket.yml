@@ -1,0 +1,33 @@
+version: "3.1"
+
+actions:
+  - action_update_ticket_status
+
+slots:
+  update_ticket_id:
+    type: text
+    mappings:
+      - type: from_llm
+  new_ticket_status:
+    type: categorical
+    values:
+      - open
+      - in_progress
+      - resolved
+      - closed
+    mappings:
+      - type: from_llm
+  update_success:
+    type: bool
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_update_ticket_id:
+    - text: "Which ticket do you want to update? Give me the ID (e.g. TCK-1001)."
+  utter_ask_new_ticket_status:
+    - text: "What should the new status be — open, in progress, resolved, or closed?"
+  utter_update_success:
+    - text: "Done — ticket {update_ticket_id} is now marked as {new_ticket_status}."
+  utter_update_failed:
+    - text: "I couldn't update that ticket. Please double-check the ID and try again."

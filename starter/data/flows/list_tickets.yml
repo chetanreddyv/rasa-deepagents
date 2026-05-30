@@ -1,0 +1,12 @@
+flows:
+  list_tickets:
+    description: >
+      List existing tickets from the system. Triggers when the user wants to
+      see, list, view, show, or browse their tickets or all tickets. Also
+      triggers for "what tickets do I have" or "show me open tickets".
+    steps:
+      - collect: list_status_filter
+        description: "Optional status filter: open, in_progress, resolved, or closed. The user can say 'all' to skip filtering."
+        ask_before_filling: true
+      - action: action_list_tickets
+      - action: utter_can_do_something_else

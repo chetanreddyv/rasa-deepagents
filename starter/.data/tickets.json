@@ -14,5 +14,69 @@
     "email": "rod@example.com",
     "status": "open",
     "created_at": "2026-05-29T12:53:20.228835+00:00"
+  },
+  "TCK-5315": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T02:56:34.985715+00:00"
+  },
+  "TCK-5316": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T02:57:04.634263+00:00"
+  },
+  "TCK-5317": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T02:57:40.401644+00:00"
+  },
+  "TCK-5318": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T02:57:50.784432+00:00"
+  },
+  "TCK-5319": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T02:59:15.547350+00:00"
+  },
+  "TCK-5320": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T03:02:31.757973+00:00"
+  },
+  "TCK-5321": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T03:04:04.170544+00:00"
+  },
+  "TCK-5322": {
+    "summary": "Our billing dashboard has been showing the wrong invoice totals for enterprise customers since this morning",
+    "category": "billing",
+    "priority": "urgent",
+    "email": "rod@example.com",
+    "status": "open",
+    "created_at": "2026-05-30T03:04:12.988718+00:00"
   }
 }

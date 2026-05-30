@@ -35,6 +35,10 @@ slots:
     type: text
     mappings:
       - type: controlled
+  inputs_valid:
+    type: bool
+    mappings:
+      - type: controlled
 
 responses:
   utter_ask_issue_summary:
@@ -47,3 +51,5 @@ responses:
     - text: "What's the best email to send you updates at?"
   utter_ticket_created:
     - text: "Done — I've logged ticket {ticket_id} as a {issue_priority}-priority {issue_category} issue. Updates will go to {contact_email}."
+  utter_inputs_invalid:
+    - text: "I couldn't log the ticket because some information was missing or invalid. Please check the email format or other details and try again."

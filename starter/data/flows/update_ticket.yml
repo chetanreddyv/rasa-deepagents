@@ -1,0 +1,31 @@
+flows:
+  update_ticket_status:
+    description: >
+      Update the status of an existing ticket. Triggers when the user wants
+      to change, update, set, or move a ticket's status — e.g. "mark
+      TCK-1001 as resolved", "close ticket 1002", "move TCK-1003 to in progress".
+    steps:
+      - set_slots:
+          - plan_template: "ticket_update"
+      - action: action_init_plan
+      - collect: update_ticket_id
+        description: The ticket identifier to update, for example TCK-1001.
+      - action: action_advance_step
+      - collect: new_ticket_status
+        description: "The new status for the ticket: open, in_progress, resolved, or closed."
+      - action: action_advance_step
+      - action: action_update_ticket_status
+      - action: action_advance_step
+      - next:
+          - if: slots.update_success
+            then:
+              - action: utter_update_success
+              - action: action_advance_step
+              - action: action_complete_plan
+              - next: wrap_up
+          - else:
+              - action: utter_update_failed
+              - action: action_complete_plan
+              - next: wrap_up
+      - id: wrap_up
+        action: utter_can_do_something_else

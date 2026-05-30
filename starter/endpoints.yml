@@ -14,6 +14,16 @@
 action_endpoint:
   actions_module: "actions"
 
+# ── Persistent conversation memory ──────────────────────────────────────────
+# SQLite tracker store keeps conversation history, slots, and events across
+# Rasa restarts. The file lives in .data/ alongside the work-item store.
+# Swap to PostgreSQL/Redis for production; SQLite is zero-dep and perfect
+# for hackathon/dev use.
+tracker_store:
+  type: SQL
+  dialect: "sqlite"
+  db: ".data/rasa_tracker.db"
+
 model_groups:
   # ── Command Generator brain ────────────────────────────────────────────────
   # Needs to follow instructions precisely and emit clean Rasa commands.
@@ -42,12 +52,12 @@ model_groups:
         max_tokens: 1024
         timeout: 60
 
-# Natural, less-robotic phrasing for spoken replies. Uses the command LLM.
-nlg:
-  type: rephrase
-  summarize_history: false
-  llm:
-    model_group: nebius_command_llm
+# NLG rephrasing is disabled to keep responses fully deterministic
+# nlg:
+#   type: rephrase
+#   summarize_history: false
+#   llm:
+#     model_group: nebius_command_llm
 
 # MCP tool servers. Only the optional `agentic/` level uses this; harmless otherwise.
 mcp_servers:

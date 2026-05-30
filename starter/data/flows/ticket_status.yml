@@ -1,20 +1,26 @@
 flows:
   check_ticket_status:
     description: >
-      Look up the current status of an existing support ticket. Triggers when the
-      user asks about the progress, state, or status of a ticket they already filed,
-      or references an existing ticket number.
+      Look up or check the status of a specific support ticket. Only triggers when the user explicitly asks to check, lookup, view, or get the status/state of a ticket, or when they supply a ticket ID (like TCK-1234) to check. Do not trigger for general updates or status questions unless they specify they want to check an existing ticket status.
     steps:
+      - set_slots:
+          - plan_template: "ticket_investigation"
+      - action: action_init_plan
       - collect: lookup_ticket_id
         description: The ticket identifier to check, for example TCK-1234.
+      - action: action_advance_step
       - action: action_lookup_ticket
-        next:
+      - action: action_advance_step
+      - next:
           - if: slots.ticket_found
             then:
               - action: utter_ticket_status
-                next: wrap_up
+              - action: action_advance_step
+              - action: action_complete_plan
+              - next: wrap_up
           - else:
               - action: utter_ticket_not_found
-                next: wrap_up
+              - action: action_complete_plan
+              - next: wrap_up
       - id: wrap_up
         action: utter_can_do_something_else

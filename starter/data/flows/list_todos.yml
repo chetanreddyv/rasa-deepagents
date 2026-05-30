@@ -1,0 +1,20 @@
+flows:
+  list_todos:
+    description: >
+      List tasks and notes from the scratchpad. Triggers when the user wants to
+      see, list, view, show, browse, or check their to-do list, scratchpad,
+      tasks, or notes. Also triggers for "what's left to do", "what do I need
+      to do for TCK-1001", or "show me my open tasks".
+    steps:
+      - collect: todo_status_filter
+        description: >
+          Optional status filter: open, done, or cancelled. The user can say
+          'all' to skip filtering. Defaults to showing open tasks.
+        ask_before_filling: true
+      - collect: todo_filter_ticket
+        description: >
+          Optional ticket ID to filter by, e.g. TCK-1001. If the user says no
+          or doesn't mention one, show all tasks.
+        ask_before_filling: true
+      - action: action_list_todos
+      - action: utter_can_do_something_else

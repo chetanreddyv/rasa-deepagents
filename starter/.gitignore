@@ -373,3 +373,6 @@ tests/audio_responses/
  
 # Session debug logs (re-created each run — never commit)
 .logs/
+
+# Persistent data stores (SQLite DBs, legacy JSON)
+.data/

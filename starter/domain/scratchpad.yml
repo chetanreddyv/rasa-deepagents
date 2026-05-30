@@ -1,0 +1,47 @@
+version: "3.1"
+
+# ── Agent-Internal Scratchpad ──────────────────────────────────────────────
+# These actions and slots are for the agent's OWN planning and progress
+# tracking — not user-facing.  The agent_plan slot is injected into the
+# LLM command prompt so the agent always sees its current plan.
+
+actions:
+  - action_init_plan
+  - action_advance_step
+  - action_check_plan
+  - action_complete_plan
+
+slots:
+  # The rendered plan text — injected into the LLM prompt every turn.
+  # This is the agent's "cognitive state": what it's working on and
+  # how far along it is.
+  agent_plan:
+    type: text
+    mappings:
+      - type: controlled
+  # The current objective ID (e.g. OBJ-0001).
+  agent_objective_id:
+    type: text
+    mappings:
+      - type: controlled
+  # Which plan template to use (e.g. "support_ticket", "incident_triage").
+  # Set by flows before calling action_init_plan.
+  plan_template:
+    type: text
+    mappings:
+      - type: controlled
+  # Linked ticket/incident for the current plan.
+  plan_linked_item:
+    type: text
+    mappings:
+      - type: controlled
+  # Which step number was just completed (set by flows before action_advance_step).
+  advance_step_number:
+    type: text
+    mappings:
+      - type: controlled
+  # Agent's notes/observations for the completed step.
+  advance_step_notes:
+    type: text
+    mappings:
+      - type: controlled

@@ -8,6 +8,9 @@ stub_custom_actions:
       - event: slot
         name: ticket_id
         value: "TCK-9999"
+      - event: slot
+        name: inputs_valid
+        value: true
 
 test_cases:
   - test_case: user logs an urgent billing ticket

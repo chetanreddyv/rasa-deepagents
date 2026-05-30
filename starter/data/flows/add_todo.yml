@@ -1,0 +1,29 @@
+flows:
+  add_todo:
+    description: >
+      Add a task, note, or to-do item to the scratchpad. Triggers when the user
+      wants to add, create, note, jot down, or remember a task — optionally
+      linked to a ticket or incident. Examples: "add a todo to check logs for
+      TCK-1001", "note: restart the staging server", "remind me to follow up".
+    steps:
+      - collect: todo_text
+        description: A free-text description of the task or note to add.
+      - collect: todo_linked_ticket
+        description: >
+          Optional ticket or incident ID to link this task to, e.g. TCK-1001.
+          If the user says no or doesn't mention one, leave empty.
+        ask_before_filling: true
+      - collect: todo_priority
+        description: "How important is this task: low, normal, high, or urgent. Defaults to normal."
+        ask_before_filling: true
+      - action: action_add_todo
+        next:
+          - if: slots.todo_added
+            then:
+              - action: utter_todo_added
+                next: wrap_up
+          - else:
+              - action: utter_todo_add_failed
+                next: wrap_up
+      - id: wrap_up
+        action: utter_can_do_something_else

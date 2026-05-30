@@ -1,0 +1,27 @@
+version: "3.1"
+
+actions:
+  - action_list_tickets
+
+slots:
+  list_status_filter:
+    type: categorical
+    values:
+      - open
+      - in_progress
+      - resolved
+      - closed
+    mappings:
+      - type: from_llm
+  tickets_found:
+    type: bool
+    mappings:
+      - type: controlled
+  ticket_list_text:
+    type: text
+    mappings:
+      - type: controlled
+
+responses:
+  utter_ask_list_status_filter:
+    - text: "Would you like to see all tickets, or only ones with a specific status (open, in progress, resolved, closed)?"

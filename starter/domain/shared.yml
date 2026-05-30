@@ -11,3 +11,7 @@ responses:
     - text: "Anything else I can help you with?"
   utter_goodbye:
     - text: "Thanks for working with me — I'll be right here whenever you need me."
+  utter_chitchat:
+    - text: "I'm focused on helping you manage support tickets and your task scratchpad. Let me know if you need to open a ticket, check a status, or manage your to-do list."
+  utter_cannot_handle:
+    - text: "I'm sorry, I don't know how to handle that request. I can help you log support tickets, check ticket status, or manage your scratchpad (add tasks, list todos, mark items done)."

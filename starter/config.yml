@@ -14,6 +14,7 @@ assistant_id: rasa_coworker_hackathon_2026
 
 pipeline:
   - name: CompactLLMCommandGenerator
+    prompt_template: custom_command_prompt.jinja2
     llm:
       # References a model_group defined in endpoints.yml (Nebius Token Factory).
       model_group: nebius_command_llm
