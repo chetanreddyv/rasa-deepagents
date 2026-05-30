@@ -1,0 +1,8 @@
+flows:
+  EXTERNAL_incident_stale:
+    description: >
+      Triggered automatically when the heartbeat detects a high or urgent
+      incident has gone stale. Escalates and notifies the on-call operator.
+    steps:
+      - action: action_escalate_stale_incident
+      - action: utter_stale_escalation_alert

@@ -1,0 +1,21 @@
+version: "3.1"
+
+intents:
+  - EXTERNAL_incident_stale
+
+entities:
+  - incident_id
+
+slots:
+  incident_id:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: incident_id
+
+actions:
+  - action_escalate_stale_incident
+
+responses:
+  utter_stale_escalation_alert:
+    - text: "🚨 **ESCALATION ALERT:** Incident `{incident_id}` has gone stale! I have escalated this to the primary on-call operator."

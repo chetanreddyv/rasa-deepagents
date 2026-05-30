@@ -490,3 +490,30 @@ class ActionRecallSession(Action):
             )
         return [SlotSet("agent_context_summary", context)]
 
+
+class ActionEscalateStaleIncident(Action):
+    """Handle automatic escalation from the heartbeat monitor."""
+
+    def name(self) -> Text:
+        return "action_escalate_stale_incident"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        incident_id = tracker.get_slot("incident_id")
+        
+        if incident_id:
+            # Mark it as escalated on the timeline or board
+            from actions.work_items import add_timeline_event
+            try:
+                add_timeline_event(incident_id, "escalated", "Escalated by heartbeat monitor due to inactivity")
+                print(f"ActionEscalateStaleIncident: Escalated {incident_id}")
+            except Exception as e:
+                print(f"ActionEscalateStaleIncident Error: {e}")
+                
+        return []
+
+
