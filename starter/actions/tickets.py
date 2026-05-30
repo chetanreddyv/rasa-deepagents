@@ -9,6 +9,8 @@ On first import the module auto-migrates any legacy .data/tickets.json entries.
 from __future__ import annotations
 
 from typing import Any, Dict
+import json
+from pathlib import Path
 
 from actions.work_items import (
     create_item,
@@ -119,3 +121,40 @@ def normalise_ticket_id(raw: str | None) -> str:
         return f"TCK-{digits}"
 
     return raw.strip()
+
+
+# ── Session Memory ─────────────────────────────────────────────────────────
+
+MEMORY_STORE = Path(".data/session_memory.json")
+
+def load_memory() -> dict:
+    if not MEMORY_STORE.exists():
+        return {}
+    try:
+        return json.loads(MEMORY_STORE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+def save_memory(memory: dict) -> None:
+    MEMORY_STORE.parent.mkdir(parents=True, exist_ok=True)
+    MEMORY_STORE.write_text(json.dumps(memory, indent=2), encoding="utf-8")
+
+def append_compact_summary(sender_id: str, summary: str) -> None:
+    memory = load_memory()
+    if sender_id not in memory:
+        memory[sender_id] = []
+    memory[sender_id].append({
+        "summary": summary,
+        "saved_at": utc_now(),
+    })
+    # Keep last 5 summaries per sender
+    memory[sender_id] = memory[sender_id][-5:]
+    save_memory(memory)
+
+def get_session_context(sender_id: str) -> str:
+    memory = load_memory()
+    entries = memory.get(sender_id, [])
+    if not entries:
+        return ""
+    parts = [e["summary"] for e in entries]
+    return "\n\n".join(parts)

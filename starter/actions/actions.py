@@ -20,7 +20,7 @@ from actions.work_items import (
     update_item,
     utc_now,
 )
-from actions.tickets import normalise_ticket_id
+from actions.tickets import normalise_ticket_id, append_compact_summary, get_session_context
 
 
 # ── Create Ticket ───────────────────────────────────────────────────────────
@@ -483,4 +483,43 @@ class ActionSummarizeContext(Action):
         print("ActionSummarizeContext built summary.")
         return [SlotSet("agent_context_summary", summary_text)]
 
+
+class ActionCompactAndComplete(Action):
+    """
+    Call at the END of any flow that constitutes a completed 'task'.
+    Builds a compact summary from current slot values + sets agent_context_summary.
+    Does NOT try to modify tracker.events (append-only — that's a Rasa constraint).
+    """
+    def name(self) -> Text:
+        return "action_compact_and_complete"
+
+    def run(self, dispatcher, tracker, domain):
+        sender_id = tracker.sender_id or "default"
+
+        # Collect all non-null, non-internal slot values
+        skip = {"return_value", "agent_context_summary", "session_started_metadata"}
+        data_slots = {
+            k: v for k, v in tracker.current_slot_values().items()
+            if v is not None and k not in skip
+        }
+
+        # Build compact summary
+        lines = [
+            "=== COMPLETED TASK SNAPSHOT ===",
+            f"Completed at: {utc_now()}",
+            "",
+            "Data collected this task:",
+        ]
+        for k, v in data_slots.items():
+            lines.append(f"  • {k}: {v}")
+        lines.append("=== END SNAPSHOT ===")
+        summary = "\n".join(lines)
+
+        # Persist to session memory store
+        append_compact_summary(sender_id, summary)
+
+        # Also load ALL prior summaries for this session and inject into slot
+        full_context = get_session_context(sender_id)
+
+        return [SlotSet("agent_context_summary", full_context)]
 
