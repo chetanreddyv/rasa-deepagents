@@ -29,11 +29,13 @@ def inject_incident(incident_id, summary, priority):
         resp = requests.post(
             RASA_URL,
             json={"sender": SENDER, "message": message},
-            timeout=5,
+            timeout=10,
         )
         print(f"[{datetime.now(timezone.utc).isoformat()}] Injected: {message} → {resp.status_code}")
-    except requests.exceptions.ConnectionError:
-        print("Rasa not reachable yet, retrying...")
+        return resp.status_code == 200
+    except requests.exceptions.RequestException as e:
+        print(f"Rasa not reachable or timed out, retrying... ({e.__class__.__name__})")
+        return False
 
 if __name__ == "__main__":
     print(f"Heartbeat monitor started. Polling every {POLL_INTERVAL}s.")
@@ -42,6 +44,7 @@ if __name__ == "__main__":
         incidents = check_for_incidents()
         for inc_id, summary, priority in incidents:
             if inc_id not in notified:
-                inject_incident(inc_id, summary, priority)
-                notified.add(inc_id)
+                success = inject_incident(inc_id, summary, priority)
+                if success:
+                    notified.add(inc_id)
         time.sleep(POLL_INTERVAL)
