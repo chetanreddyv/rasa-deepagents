@@ -15,7 +15,7 @@ Do this off-screen before the judges walk over. You want the dashboard already o
 2. **Seed the Database (Crucial for history features):**
    ```bash
    # Make sure you are in the starter directory
-   python scripts/seed_incidents.py
+   ./.venv/bin/python scripts/seed_incidents.py
    ```
 3. **Start the System:**
    ```bash
