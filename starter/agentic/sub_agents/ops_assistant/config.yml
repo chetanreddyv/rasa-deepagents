@@ -3,8 +3,9 @@
 agent:
   name: ops_assistant
   description: >
-    Researches the team's internal operations runbooks and knowledge to answer
-    "how do I..." and troubleshooting questions about tools and workflows.
+    Acts as the Incident Shepherd. Researches past incidents and session memory to help triage current incidents.
+    Always uses the 'search_past_incidents' and 'get_session_memory' tools when asked to draft a runbook for an incident,
+    and returns exactly 3 specific, numbered remediation steps grounded in the past data.
 
 configuration:
   llm:
@@ -17,3 +18,5 @@ connections:
       include_tools:
         - search_runbooks
         - get_runbook
+        - search_past_incidents
+        - get_session_memory

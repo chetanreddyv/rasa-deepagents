@@ -5,6 +5,7 @@ Run:  make run-mcp   ->  http://localhost:8000/mcp
 """
 
 import json
+import sqlite3
 from pathlib import Path
 
 from fastmcp import FastMCP
@@ -32,6 +33,49 @@ def get_runbook(runbook_id: str) -> str:
         if r["id"].lower() == runbook_id.strip().lower():
             return json.dumps(r)
     return json.dumps({"error": f"Runbook {runbook_id} not found."})
+
+
+@mcp.tool()
+def search_past_incidents(service_name: str) -> str:
+    """Search past incidents and tickets for a specific service or symptom."""
+    db_path = Path(".data/work_items.db")
+    if not db_path.exists():
+        return json.dumps({"error": "Database not found."})
+    
+    try:
+        with sqlite3.connect(str(db_path)) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT id, summary, category, status, priority, created_at FROM work_items ORDER BY created_at DESC LIMIT 200"
+            ).fetchall()
+            
+        hits = [
+            dict(r) for r in rows
+            if service_name.lower() in (r["summary"] + " " + r["category"]).lower()
+        ]
+        return json.dumps({"results": hits[:5]})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
+def get_session_memory() -> str:
+    """Retrieve the compacted summaries from previous triage sessions."""
+    mem_path = Path(".data/session_memory.json")
+    if not mem_path.exists():
+        return json.dumps({"results": "No prior sessions found."})
+    
+    try:
+        memory = json.loads(mem_path.read_text(encoding="utf-8"))
+        all_entries = []
+        for sender_id, entries in memory.items():
+            all_entries.extend(entries)
+        # Sort by saved_at desc
+        all_entries.sort(key=lambda x: x.get("saved_at", ""), reverse=True)
+        return json.dumps({"results": all_entries[:5]})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
 
 
 if __name__ == "__main__":

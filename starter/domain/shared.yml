@@ -8,8 +8,36 @@ slots:
     type: any
     mappings:
       - type: controlled
+  incident_service:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_llm
+  incident_symptom:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_llm
+  incident_severity:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_llm
+  approval_to_proceed:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_llm
 
 responses:
+  utter_ask_incident_service:
+    - text: "Which service or system is affected? (e.g., payments, auth, database)"
+  utter_ask_incident_symptom:
+    - text: "What is the symptom or error? What are users experiencing?"
+  utter_ask_incident_severity:
+    - text: "What is the severity level? (e.g., P1, P2, P3)"
+  utter_ask_approval_to_proceed:
+    - text: "I have drafted a runbook for this incident. Do you approve proceeding with it? (Yes/No)"
   utter_can_do_something_else:
     - text: "Is there any other task I can assist you with?"
   utter_goodbye:

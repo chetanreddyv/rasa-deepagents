@@ -112,6 +112,11 @@ run-mcp: ## Tab 0: MCP tool server (Level 2)
 	@echo "$(BLUE)MCP tool server on :8000...$(RESET)"
 	$(PYTHON) agentic/servers/ops_mcp_server/server.py
 
+.PHONY: run-heartbeat
+run-heartbeat: ## Tab 0.5: Run the heartbeat monitor
+	@echo "$(BLUE)Starting heartbeat monitor...$(RESET)"
+	$(PYTHON) scripts/heartbeat.py
+
 # ==============================================================================
 .PHONY: demo
 demo: ## Tab 3: full voice loop (run `make generate-audio` first)

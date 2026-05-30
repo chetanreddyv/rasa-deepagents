@@ -1,0 +1,41 @@
+flows:
+  triage_incident:
+    description: >
+      Triage an active incident. Triggers when a user reports a production
+      issue, outage, alert, or asks to open an incident. Recalls past incidents
+      and drafts a grounded runbook before acting.
+    steps:
+      - set_slots:
+          - plan_template: "incident_triage"
+          - incident_service: null
+          - incident_symptom: null
+          - incident_severity: null
+          - approval_to_proceed: null
+      - action: action_init_plan
+      - collect: incident_service
+        description: "Which service or system is affected? (e.g. payments, auth, database)"
+      - collect: incident_symptom
+        description: "What is the symptom or error? What are users experiencing?"
+      - collect: incident_severity
+        description: "Severity: P1 (all users down), P2 (partial degradation), P3 (minor issue)"
+      - action: action_advance_step
+      - call: ops_assistant
+      - collect: approval_to_proceed
+        description: "Review the runbook above. Confirm to proceed (yes) or abort (no)."
+      - action: action_advance_step
+        next:
+          - if: slots.approval_to_proceed == "yes" or slots.approval_to_proceed == "Yes" or slots.approval_to_proceed == "YES"
+            then:
+              - set_slots:
+                  - issue_category: slots.incident_service
+                  - issue_summary: slots.incident_symptom
+                  - issue_priority: slots.incident_severity
+                  - contact_email: "oncall@example.com"
+              - action: action_create_ticket
+              - action: action_complete_plan
+                next: wrap_up
+          - else:
+              - action: action_complete_plan
+                next: wrap_up
+      - id: wrap_up
+        action: utter_can_do_something_else
