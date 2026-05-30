@@ -250,6 +250,49 @@
             border-radius: 50%;
             background-color: #f07178; /* red by default, turned green when running */
         }
+        
+        .right-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .data-container {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .data-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .db-section-title {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+        }
+        .db-section-title:first-child { margin-top: 0; }
+
+        .db-item {
+            background-color: rgba(0,0,0,0.2);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--accent-color);
+        }
+        .db-item-title { font-weight: bold; color: #fff; margin-bottom: 0.25rem; }
+        .db-item-status { font-size: 0.75rem; color: var(--user-bubble); }
 
     </style>
     <!-- Include Socket.io client -->
@@ -322,23 +365,34 @@
             </div>
         </div>
 
-        <!-- Chat UI -->
-        <div class="chat-container">
-            <div class="panel-header">Live Interaction</div>
-            <div class="chat-history" id="chat-history">
-                <div class="chat-bubble bubble-agent">
-                    <strong>Coworker:</strong> Hi! I am your AI coworker. Press the microphone button and speak to interact with me.
+        <!-- Right Column: Live Data + Chat UI -->
+        <div class="right-column">
+            <!-- Live Data UI -->
+            <div class="data-container">
+                <div class="panel-header">Live Agent Database</div>
+                <div class="data-content" id="data-content">
+                    <div style="color: #666; text-align: center; margin-top: 2rem;">Waiting for data...</div>
                 </div>
             </div>
-            
-            <div class="chat-controls">
-                <div class="status-text" id="status-text">Ready</div>
-                <button class="mic-btn" id="mic-btn" title="Click to start/stop speaking">
-                    <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                    </svg>
-                </button>
+
+            <!-- Chat UI -->
+            <div class="chat-container">
+                <div class="panel-header">Live Interaction</div>
+                <div class="chat-history" id="chat-history">
+                    <div class="chat-bubble bubble-agent">
+                        <strong>Coworker:</strong> Hi! I am your AI coworker. Press the microphone button and speak to interact with me.
+                    </div>
+                </div>
+                
+                <div class="chat-controls">
+                    <div class="status-text" id="status-text">Ready</div>
+                    <button class="mic-btn" id="mic-btn" title="Click to start/stop speaking">
+                        <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -373,15 +427,76 @@
             const term = terminals[msg.id];
             if (term) {
                 const span = document.createElement('span');
-                span.className = msg.type === 'stderr' ? 'log-error' : 'log-info';
+                // All output is normal (Rasa/MCP/Sanic write to stderr by default)
+                if (msg.type === 'system') {
+                    span.style.color = '#ffcb6b'; // yellow for exit messages
+                    span.style.fontWeight = 'bold';
+                } else {
+                    span.style.color = '#bcc2cd';
+                }
                 // Escape HTML
                 const safeText = msg.data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                span.innerHTML = safeText + "\n";
+                span.innerHTML = safeText;
                 term.appendChild(span);
                 
                 // Auto scroll to bottom
                 term.scrollTop = term.scrollHeight;
             }
+        });
+        
+        socket.on('db-state', (data) => {
+            const container = document.getElementById('data-content');
+            let html = '';
+            
+            // DB work_items
+            if (data.tickets && data.tickets.length > 0) {
+                html += '<div class="db-section-title">Work Items (DB)</div>';
+                data.tickets.forEach(t => {
+                    const priorityColor = (t.priority === 'urgent' || t.priority === 'high') ? '#f07178' : '#89ddff';
+                    html += `
+                        <div class="db-item">
+                            <div class="db-item-title">${t.id}: ${t.summary}</div>
+                            <div class="db-item-status">
+                                Status: <strong>${t.status}</strong>
+                                ${t.priority ? ` · Priority: <span style="color:${priorityColor}">${t.priority}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // JSON tickets
+            if (data.json_tickets && data.json_tickets.length > 0) {
+                html += '<div class="db-section-title">Tickets (JSON)</div>';
+                data.json_tickets.forEach(t => {
+                    const priorityColor = (t.priority === 'urgent' || t.priority === 'high') ? '#f07178' : '#89ddff';
+                    html += `
+                        <div class="db-item">
+                            <div class="db-item-title">${t.id}: ${t.summary}</div>
+                            <div class="db-item-status">
+                                Status: <strong>${t.status}</strong>
+                                ${t.priority ? ` · Priority: <span style="color:${priorityColor}">${t.priority}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (data.plans && data.plans.length > 0) {
+                html += '<div class="db-section-title">Agent Runbooks</div>';
+                data.plans.forEach(p => {
+                    const statusIcon = p.status === 'completed' ? '✅' : p.status === 'active' ? '🔄' : '❌';
+                    html += `
+                        <div class="db-item" style="border-left-color: var(--agent-bubble)">
+                            <div class="db-item-title">${statusIcon} ${p.id}: ${p.title}</div>
+                            <div class="db-item-status" style="color: var(--agent-bubble)">Status: <strong>${p.status}</strong></div>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (!html) html = '<div style="color: #666; text-align: center; margin-top: 2rem;">No active items found</div>';
+            container.innerHTML = html;
         });
 
         // --- 2. Web Speech API (Voice & TTS) and Rasa REST ---
