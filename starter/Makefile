@@ -95,7 +95,7 @@ train-agentic: ## Train Level 2 (adds the ops_assistant sub-agent + its flow)
 .PHONY: run-actions
 run-actions: ## Tab 1: action server
 	@echo "$(MAGENTA)Action server on :5055...$(RESET)"
-	$(RASA) run actions
+	RASA_SDK_LOG_LEVEL=INFO $(RASA) run actions
 
 .PHONY: run-rasa
 run-rasa: ## Tab 2: Rasa server (Level 1)

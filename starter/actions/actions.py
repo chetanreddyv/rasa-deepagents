@@ -21,6 +21,9 @@ from actions.work_items import (
     utc_now,
 )
 from actions.tickets import normalise_ticket_id, append_compact_summary, get_session_context
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ── Create Ticket ───────────────────────────────────────────────────────────
@@ -35,6 +38,7 @@ class ActionCreateTicket(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_create_ticket fired")
         summary = tracker.get_slot("issue_summary")
         category = tracker.get_slot("issue_category")
         priority = tracker.get_slot("issue_priority")
@@ -121,6 +125,7 @@ class ActionLookupTicket(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_lookup_ticket fired")
         raw_ticket_id = tracker.get_slot("lookup_ticket_id")
         print(f"ActionLookupTicket called: raw_ticket_id={raw_ticket_id}")
         if not raw_ticket_id or not isinstance(raw_ticket_id, str):
@@ -166,6 +171,7 @@ class ActionListTickets(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_list_tickets fired")
         status_filter = tracker.get_slot("list_status_filter")
         items = list_items(kind="ticket", status=status_filter, limit=10)
         print(f"ActionListTickets called: status_filter={status_filter}, found={len(items)} items")
@@ -210,6 +216,7 @@ class ActionUpdateTicketStatus(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_update_ticket_status fired")
         raw_ticket_id = tracker.get_slot("update_ticket_id")
         new_status = tracker.get_slot("new_ticket_status")
 
@@ -283,6 +290,7 @@ class ActionInitPlan(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_init_plan fired")
         sender_id = tracker.sender_id or "default"
         template_name = tracker.get_slot("plan_template") or ""
         linked_item = tracker.get_slot("plan_linked_item") or ""
@@ -347,6 +355,7 @@ class ActionAdvanceStep(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_advance_step fired")
         sender_id = tracker.sender_id or "default"
         obj = get_active_objective(sender_id)
         if not obj:
@@ -392,6 +401,7 @@ class ActionCheckPlan(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_check_plan fired")
         sender_id = tracker.sender_id or "default"
         progress = get_progress_summary(sender_id)
 
@@ -425,6 +435,7 @@ class ActionCompletePlan(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_complete_plan fired")
         sender_id = tracker.sender_id or "default"
         obj = get_active_objective(sender_id)
 
@@ -479,6 +490,7 @@ class ActionRecallSession(Action):
         return "action_recall_session"
 
     def run(self, dispatcher, tracker, domain):
+        logger.info("[CALM] action_recall_session fired")
         sender_id = tracker.sender_id or "default"
         context = get_session_context(sender_id)
         if not context:
@@ -497,6 +509,7 @@ class ActionCompactMemory(Action):
         return "action_compact_memory"
 
     def run(self, dispatcher, tracker, domain):
+        logger.info("[CALM] action_compact_memory fired")
         import json
         import os
         from pathlib import Path
@@ -576,6 +589,7 @@ class ActionEscalateStaleIncident(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        logger.info("[CALM] action_escalate_stale_incident fired")
         incident_id = tracker.get_slot("incident_id")
         
         if incident_id:

@@ -9,6 +9,9 @@ import sqlite3
 from pathlib import Path
 
 from fastmcp import FastMCP
+import logging
+
+logger = logging.getLogger(__name__)
 
 RUNBOOKS = json.loads((Path(__file__).parent / "runbooks.json").read_text(encoding="utf-8"))
 mcp = FastMCP("Ops Tools")
@@ -17,6 +20,7 @@ mcp = FastMCP("Ops Tools")
 @mcp.tool()
 def search_runbooks(query: str) -> str:
     """Search internal runbooks by keyword. Returns matching ids and titles."""
+    logger.info(f"[AGENTIC] tool_call search_runbooks query={query!r}")
     q = query.lower()
     hits = [
         {"id": r["id"], "title": r["title"], "tags": r["tags"]}
@@ -29,6 +33,7 @@ def search_runbooks(query: str) -> str:
 @mcp.tool()
 def get_runbook(runbook_id: str) -> str:
     """Fetch the full body of a runbook by id, e.g. RB-002."""
+    logger.info(f"[AGENTIC] tool_call get_runbook id={runbook_id!r}")
     for r in RUNBOOKS:
         if r["id"].lower() == runbook_id.strip().lower():
             return json.dumps(r)
@@ -38,6 +43,7 @@ def get_runbook(runbook_id: str) -> str:
 @mcp.tool()
 def search_past_incidents(service_name: str) -> str:
     """Search past incidents and tickets for a specific service or symptom."""
+    logger.info(f"[AGENTIC] tool_call search_past_incidents service={service_name!r}")
     # Resolve path relative to THIS file, not CWD
     db_path = Path(__file__).parents[4] / ".data" / "work_items.db"
 
@@ -68,6 +74,7 @@ def search_past_incidents(service_name: str) -> str:
 @mcp.tool()
 def get_session_memory(service_name: str = None) -> str:
     """Retrieve the compacted summaries from previous triage sessions. Optionally filter by service name."""
+    logger.info(f"[AGENTIC] tool_call get_session_memory service={service_name!r}")
     mem_path = Path(".data/session_memory.json")
     if not mem_path.exists():
         return json.dumps({"results": "No prior sessions found."})

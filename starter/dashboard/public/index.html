@@ -364,27 +364,92 @@
             color: var(--user-bubble);
             margin-bottom: 0.5rem;
         }
-        .kanban-step-list {
+        
+        .plan-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border-left: 3px solid var(--agent-bubble);
+        }
+        .plan-card.completed, .plan-card.done {
+            border-left-color: #666;
+            opacity: 0.8;
+        }
+        .plan-card.completed .plan-title, .plan-card.done .plan-title {
+            color: #bbb;
+        }
+        .plan-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+        .plan-id {
+            font-weight: bold;
+            color: #fff;
+        }
+        .plan-title {
+            font-weight: bold;
+            color: #fff;
+            flex: 1 1 100%;
+        }
+        .plan-status.badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background-color: rgba(195, 232, 141, 0.2);
+            color: var(--agent-bubble);
+            text-transform: uppercase;
+        }
+        .plan-link {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+        }
+        .step-list {
             list-style: none;
             padding: 0;
             margin: 0;
             font-size: 0.8rem;
             border-top: 1px solid var(--border-color);
             padding-top: 0.5rem;
+            margin-bottom: 0.5rem;
         }
-        .kanban-step-item {
+        .step {
             display: flex;
             align-items: flex-start;
             gap: 0.5rem;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.4rem;
         }
-        .kanban-step-item.done {
-            text-decoration: line-through;
+        .step-done {
             color: #666;
+            text-decoration: line-through;
         }
-        .step-checkbox {
-            margin-top: 0.15rem;
-            accent-color: var(--agent-bubble);
+        .step-in_progress {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        .step-icon {
+            flex-shrink: 0;
+            font-family: monospace;
+            width: 14px;
+        }
+        .step-desc {
+            flex: 1;
+        }
+        .step-notes {
+            display: block;
+            font-size: 0.7rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 2px;
+        }
+        .plan-progress {
+            font-size: 0.7rem;
+            text-align: right;
+            color: #888;
         }
         .memory-pulse-container {
             height: 24px;
@@ -593,13 +658,6 @@
             let plans = data.plans || [];
             let steps = data.steps || [];
 
-            // Group steps by objective_id
-            let stepsByObjective = {};
-            steps.forEach(s => {
-                if (!stepsByObjective[s.objective_id]) stepsByObjective[s.objective_id] = [];
-                stepsByObjective[s.objective_id].push(s);
-            });
-
             // For Kanban view, let's group Plans into columns by status
             // Pending/Active vs Completed
             let activePlans = plans.filter(p => p.status !== 'completed' && p.status !== 'done');
@@ -626,30 +684,30 @@
             // Col 2: Active Runbooks / Plans
             html += '<div class="kanban-col"><div class="kanban-col-title">Active Runbooks</div>';
             if (activePlans.length === 0) html += '<div style="color:#666;text-align:center;font-size:0.8rem">No active runbooks</div>';
-            activePlans.forEach(p => {
-                const objSteps = stepsByObjective[p.id] || [];
-                let stepsHtml = '';
-                if (objSteps.length > 0) {
-                    stepsHtml = '<ul class="kanban-step-list">';
-                    objSteps.forEach(s => {
-                        const isDone = s.status === 'done';
-                        const checkHtml = isDone ? '<input type="checkbox" class="step-checkbox" checked disabled>' : '<input type="checkbox" class="step-checkbox" disabled>';
-                        stepsHtml += `
-                            <li class="kanban-step-item ${isDone ? 'done' : ''}">
-                                ${checkHtml}
-                                <span>${s.description}</span>
-                            </li>
-                        `;
-                    });
-                    stepsHtml += '</ul>';
-                }
-
+            activePlans.forEach(obj => {
                 html += `
-                    <div class="kanban-card" style="border-left-color: var(--agent-bubble)">
-                        <div class="kanban-card-title">🔄 ${p.id}: ${p.title}</div>
-                        <div class="kanban-card-meta">Status: ${p.status}</div>
-                        ${stepsHtml}
+                  <div class="plan-card ${obj.status}">
+                    <div class="plan-header">
+                      <span class="plan-id">${obj.id}</span>
+                      <span class="plan-title">${obj.title}</span>
+                      <span class="plan-status badge">${obj.status}</span>
+                      ${obj.linked_item ? `<span class="plan-link">→ ${obj.linked_item}</span>` : ''}
                     </div>
+                    <ul class="step-list">
+                      ${(obj.steps || []).map(s => `
+                        <li class="step step-${s.status}">
+                          <span class="step-icon">${{pending:'○',in_progress:'▶',done:'✓',skipped:'—'}[s.status]||'?'}</span>
+                          <div>
+                            <span class="step-desc">${s.description}</span>
+                            ${s.notes ? `<span class="step-notes">${s.notes}</span>` : ''}
+                          </div>
+                        </li>
+                      `).join('')}
+                    </ul>
+                    <div class="plan-progress">
+                      ${(obj.steps||[]).filter(s=>s.status==='done').length}/${(obj.steps||[]).length} steps done
+                    </div>
+                  </div>
                 `;
             });
             html += '</div>';
@@ -657,12 +715,30 @@
             // Col 3: Completed Runbooks
             html += '<div class="kanban-col"><div class="kanban-col-title">Completed</div>';
             if (completedPlans.length === 0) html += '<div style="color:#666;text-align:center;font-size:0.8rem">No completed items</div>';
-            completedPlans.forEach(p => {
+            completedPlans.forEach(obj => {
                 html += `
-                    <div class="kanban-card" style="border-left-color: #666; opacity: 0.8">
-                        <div class="kanban-card-title" style="color: #bbb;">✅ ${p.id}: ${p.title}</div>
-                        <div class="kanban-card-meta" style="color: #666;">Status: ${p.status}</div>
+                  <div class="plan-card ${obj.status}">
+                    <div class="plan-header">
+                      <span class="plan-id">${obj.id}</span>
+                      <span class="plan-title">${obj.title}</span>
+                      <span class="plan-status badge">${obj.status}</span>
+                      ${obj.linked_item ? `<span class="plan-link">→ ${obj.linked_item}</span>` : ''}
                     </div>
+                    <ul class="step-list">
+                      ${(obj.steps || []).map(s => `
+                        <li class="step step-${s.status}">
+                          <span class="step-icon">${{pending:'○',in_progress:'▶',done:'✓',skipped:'—'}[s.status]||'?'}</span>
+                          <div>
+                            <span class="step-desc">${s.description}</span>
+                            ${s.notes ? `<span class="step-notes">${s.notes}</span>` : ''}
+                          </div>
+                        </li>
+                      `).join('')}
+                    </ul>
+                    <div class="plan-progress">
+                      ${(obj.steps||[]).filter(s=>s.status==='done').length}/${(obj.steps||[]).length} steps done
+                    </div>
+                  </div>
                 `;
             });
             html += '</div>';

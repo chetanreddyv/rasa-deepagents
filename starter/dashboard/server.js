@@ -137,25 +137,38 @@ function pollDatabase(targetSocket) {
 import sqlite3, json, os, sys
 db = os.path.join('.data', 'work_items.db')
 tickets_file = os.path.join('.data', 'tickets.json')
-result = {"tickets": [], "plans": [], "json_tickets": [], "steps": []}
+result = {"tickets": [], "plans": [], "json_tickets": []}
 
-# SQLite work_items + objectives
 if os.path.exists(db):
     try:
         conn = sqlite3.connect(db)
         conn.row_factory = sqlite3.Row
-        result["tickets"] = [dict(r) for r in conn.execute("SELECT id, kind, summary, priority, status FROM work_items ORDER BY created_at DESC LIMIT 10").fetchall()]
-        result["plans"]   = [dict(r) for r in conn.execute("SELECT id, title, status FROM agent_objectives ORDER BY created_at DESC LIMIT 10").fetchall()]
-        result["steps"]   = [dict(r) for r in conn.execute("SELECT objective_id, step_number, description, status FROM agent_steps ORDER BY objective_id, step_number").fetchall()]
+        result["tickets"] = [dict(r) for r in conn.execute(
+            "SELECT id, kind, summary, priority, status, owner, board_column FROM work_items ORDER BY created_at DESC LIMIT 10"
+        ).fetchall()]
+
+        # ── FIX: fetch objectives WITH their steps ──────────────────
+        objs = [dict(r) for r in conn.execute(
+            "SELECT id, title, status, linked_item FROM agent_objectives ORDER BY created_at DESC LIMIT 10"
+        ).fetchall()]
+        for obj in objs:
+            steps = [dict(s) for s in conn.execute(
+                "SELECT step_number, description, status, notes FROM agent_steps WHERE objective_id=? ORDER BY step_number",
+                (obj["id"],)
+            ).fetchall()]
+            obj["steps"] = steps
+        result["plans"] = objs
+        # ────────────────────────────────────────────────────────────
+
         conn.close()
     except Exception as e:
         result["db_error"] = str(e)
 
-# JSON tickets file
 if os.path.exists(tickets_file):
     try:
+        import json as _j
         with open(tickets_file) as f:
-            data = json.load(f)
+            data = _j.load(f)
         for tid, t in list(data.items())[-5:]:
             result["json_tickets"].append({"id": tid, "summary": t.get("summary",""), "status": t.get("status",""), "priority": t.get("priority","")})
     except Exception:
