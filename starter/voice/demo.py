@@ -78,7 +78,7 @@ async def run_text() -> None:
     banner()
     console.print("[dim]Text mode. Type a message (or 'quit'). "
                   'Try: "I need to open a support ticket."[/dim]\n')
-    sender = f"demo-{uuid.uuid4().hex[:8]}"
+    sender = "demo-user"
     async with aiohttp.ClientSession() as session:
         while True:
             try:
@@ -97,7 +97,7 @@ async def run_text() -> None:
 
 async def run_voice(agent_tts: str) -> None:
     banner()
-    sender = f"demo-{uuid.uuid4().hex[:8]}"
+    sender = "demo-user"
     asr = SpeechmaticsService()
 
     if agent_tts == "rime":
