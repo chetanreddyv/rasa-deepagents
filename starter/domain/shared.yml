@@ -24,7 +24,7 @@ slots:
     mappings:
       - type: from_llm
   approval_to_proceed:
-    type: text
+    type: bool
     influence_conversation: true
     mappings:
       - type: from_llm

@@ -24,7 +24,7 @@ flows:
         description: "Review the runbook above. Confirm to proceed (yes) or abort (no)."
       - action: action_advance_step
         next:
-          - if: slots.approval_to_proceed == "yes" or slots.approval_to_proceed == "Yes" or slots.approval_to_proceed == "YES"
+          - if: slots.approval_to_proceed
             then:
               - set_slots:
                   - issue_category: slots.incident_service
