@@ -366,17 +366,6 @@ class ActionAdvanceStep(Action):
         advance_step(obj["id"], step_number, notes)
         print(f"ActionAdvanceStep: {obj['id']} step {step_number} → done ({notes})")
 
-        # Check if all steps are done → auto-complete objective
-        updated = get_active_objective(sender_id)
-        if updated:
-            all_done = all(
-                s["status"] in ("done", "skipped")
-                for s in updated.get("steps", [])
-            )
-            if all_done:
-                complete_objective(updated["id"])
-                print(f"ActionAdvanceStep: objective {updated['id']} auto-completed (all steps done)")
-
         plan_text = render_plan(sender_id)
 
         return [
