@@ -94,6 +94,7 @@ class ActionCreateTicket(Action):
             category=category,
             priority=priority,
             reporter_email=email,
+            owner="unassigned",
             status="open",
             board_column="backlog",
         )

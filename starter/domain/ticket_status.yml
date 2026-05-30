@@ -33,6 +33,6 @@ responses:
   utter_ask_lookup_ticket_id:
     - text: "Sure — what's the ticket number? They look like TCK-1234."
   utter_ticket_status:
-    - text: "Ticket {lookup_ticket_id}: {ticket_summary} — status: {ticket_status}, priority: {ticket_priority}, owner: {ticket_owner}."
+    - text: "Ticket {lookup_ticket_id}: {ticket_summary} — status: {ticket_status}, priority: {ticket_priority}."
   utter_ticket_not_found:
     - text: "I couldn't find ticket {lookup_ticket_id}. Want me to log a new one?"

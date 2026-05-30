@@ -59,8 +59,8 @@ def search_past_incidents(service_name: str) -> str:
 
 
 @mcp.tool()
-def get_session_memory() -> str:
-    """Retrieve the compacted summaries from previous triage sessions."""
+def get_session_memory(service_name: str = None) -> str:
+    """Retrieve the compacted summaries from previous triage sessions. Optionally filter by service name."""
     mem_path = Path(".data/session_memory.json")
     if not mem_path.exists():
         return json.dumps({"results": "No prior sessions found."})
@@ -69,6 +69,9 @@ def get_session_memory() -> str:
         memory = json.loads(mem_path.read_text(encoding="utf-8"))
         all_entries = []
         for sender_id, entries in memory.items():
+            if service_name:
+                service_lower = service_name.lower()
+                entries = [e for e in entries if service_lower in e.get("summary", "").lower()]
             all_entries.extend(entries)
         # Sort by saved_at desc
         all_entries.sort(key=lambda x: x.get("saved_at", ""), reverse=True)
