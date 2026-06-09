@@ -1,237 +1,53 @@
-<div align="center">
-
-<h1>🤖 Always-On AI Coworker Hackathon</h1>
-
-<h3>Boston Tech Week 2026 · Hosted by <a href="https://rasa.com">Rasa</a> · 2 Days, 2 Venues</h3>
-
-<p>
-  <b>We're done with the 5-minute AI demo.</b><br/>
-  Over two days we're building <b>persistent, long-term digital coworkers</b> — agents that handle real
-  workflows, hold memory across long sessions, and integrate into a team's day without losing context or
-  hallucinating under pressure.
-</p>
-
-<p>
-  <a href="https://www.linkedin.com/in/profrodai/"><img src="https://img.shields.io/badge/Hosted_by-Rod-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="Hosted by Rod"/></a>
-  <a href="https://hello.rasa.ai"><img src="https://img.shields.io/badge/Try-Hello_Rasa-5A17EE?style=for-the-badge&logo=rasa&logoColor=white" alt="Try Hello Rasa"/></a>
-  <a href="https://info.rasa.com/community"><img src="https://img.shields.io/badge/Join-Community-7C3AED?style=for-the-badge&logo=discourse&logoColor=white" alt="Join the Community"/></a>
-  <a href="https://rasa.com/docs/"><img src="https://img.shields.io/badge/Read-Docs-1FA6A6?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Read the Docs"/></a>
-</p>
-
-<p>
-  <img src="https://img.shields.io/badge/Demos_Start-Sat_05%2F30_·_2%3A00_PM-E11D48?style=for-the-badge" alt="Demos start Saturday 5/30 2PM"/>
-  <img src="https://img.shields.io/badge/Team_Size-Max_5-475569?style=for-the-badge" alt="Max team size 5"/>
-</p>
-
-<p>
-  <a href="#-schedule--venues">Schedule</a> ·
-  <a href="#-start-here">Quickstart</a> ·
-  <a href="#-the-stack--resources">Stack</a> ·
-  <a href="#-presentation--judging">Prizes</a> ·
-  <a href="#-team-formation">Teams</a> ·
-  <a href="starter/">Starter Template</a>
-</p>
-
-</div>
-
-<hr/>
-
-> [!IMPORTANT]
-> **🗓️ Demos begin:** **Saturday 05/30, 2:00 PM** (submissions in by **1:45 PM**)
-> **📶 Wi-Fi:** Fri (Foundry) `TBD` · Sat (BU) **BU Guest — connects automatically**
-> **💬 Community chat:** https://info.rasa.com/community
-
-<a id="-schedule--venues"></a>
-
-## 📅 Schedule & Venues
-
-This is a **two-day event across two venues** — a Friday community kickoff and a Saturday hack-and-pitch day.
-
-| Day | Venue | Hours | What's happening |
-| :-- | :-- | :-- | :-- |
-| **Fri 05/29** | **The Foundry** | **10:00 AM – 9:00 PM** | Community kickoff, team formation, building & hacking |
-| **Sat 05/30** | **BU Spark! · CDS** | **11:00 AM – 4:00 PM** | Hack day, demos, voting & awards |
-
-### Saturday run of show
-
-| Time | |
-| :-- | :-- |
-| **11:00 AM** | Doors open at CDS, keep building |
-| **1:45 PM** | Submissions close |
-| **2:00 PM** | 🎤 Team presentations (3 min each, live demos) |
-| ~3:15 PM | 🗳️ Anonymous community vote |
-| ~3:45 PM | 🏆 Winners announced |
-| **4:00 PM** | Wrap |
-
-> [!NOTE]
-> **Saturday venue — Boston University, Center for Computing & Data Science (CDS).**
-> We're in the **basement rooms [CDS B62](https://www.bu.edu/classrooms/classroom/cds-b62/) + [CDS B63](https://www.bu.edu/classrooms/classroom/cds-b63/)** plus the **lounge between them**. The building is open — no badge needed; follow the directional signs at the stanchions by the door down to the basement.
-
-<hr/>
-
-<a id="-start-here"></a>
-
-## ⚡ Start Here — the Starter Template
-
-> [!TIP]
-> **Don't start from a blank repo.** We've shipped a best-of-breed scaffold in [`starter/`](starter/) —
-> a working Rasa coworker with voice and agentic capabilities already wired up — so you can build
-> *your* idea instead of boilerplate.
-
-```bash
-cd starter
-cp .env.example .env      # paste your keys
-make install
-make verify               # full pre-flight: keys, deps, files, services
-make train
-# then, in three terminals:
-make run-actions  |  make run-rasa  |  make demo-text
-```
-
-📖 **Full walkthrough:** [`starter/README.md`](starter/README.md)
-
-### How it fits together
-
-```
-            ears                   brain                  voice
- user  ──▶  Speechmatics ASR  ──▶  Rasa CALM (agent)  ──▶  Rime TTS  ──▶  user
-                                        │
-                                        ├── Nebius Token Factory  (LLM inference)
-                                        └── MCP tools (your APIs)  [Level 2: agentic]
-```
-
-The starter ships with deterministic flows (a support-ticket coworker), **cross-session memory**, a
-**live voice loop**, and an optional **native Rasa ReAct sub-agent + MCP** level. Fork it and make it yours.
-
-<hr/>
-
-<a id="-the-stack--resources"></a>
-
-## 🛠️ The Stack & Resources
-
-To qualify for prizes, your continuous AI coworker should leverage **Rasa** alongside our partner ecosystem.
-
-<div align="center">
-
-<a href="https://rasa.com/docs/"><img src="https://img.shields.io/badge/Rasa-CALM-5A17EE?style=for-the-badge&logo=rasa&logoColor=white" alt="Rasa"/></a>
-<a href="https://tokenfactory.nebius.com"><img src="https://img.shields.io/badge/Nebius-Token_Factory-1E293B?style=for-the-badge" alt="Nebius"/></a>
-<a href="https://www.speechmatics.com"><img src="https://img.shields.io/badge/Speechmatics-ASR_+_TTS-00B4A0?style=for-the-badge" alt="Speechmatics"/></a>
-<a href="https://rime.ai"><img src="https://img.shields.io/badge/Rime-TTS-FF5C39?style=for-the-badge" alt="Rime"/></a>
-<a href="https://github.com/neuphonic/neutts"><img src="https://img.shields.io/badge/Neuphonic-Local_TTS-0EA5E9?style=for-the-badge" alt="Neuphonic"/></a>
-<a href="https://github.com/arklexai/arksim"><img src="https://img.shields.io/badge/Arklex-arksim-64748B?style=for-the-badge" alt="Arklex"/></a>
-
-</div>
-
-### 🧠 Core framework — Rasa
-
-Build conversational resilience and enterprise-grade context management with **CALM**.
-
-| Resource | Link |
-| :-- | :-- |
-| 📚 Docs | https://rasa.com/docs/ |
-| 🎮 Try Hello Rasa (no setup) | https://hello.rasa.ai |
-| 🔑 Developer Edition license | https://rasa.com/rasa-pro-developer-edition-license-key-request |
-| 🚀 Starter template | [`starter/`](starter/) |
-
-### 🔌 LLM inference — Nebius Token Factory
-
-All model inference in the starter runs on Nebius → https://tokenfactory.nebius.com
-*Copy the exact model id / region from your console — names below are suggestions.*
-
-| Role | Suggested models |
-| :-- | :-- |
-| **Command generator** (the agent's reasoning) | `Qwen3-235B-A22B-Instruct-2507` · `gpt-oss-120b` · `DeepSeek-V3.2` |
-| **Agentic sub-agent** (tool calling) | `MiniMax-M2.5` · `Kimi-K2.6` · `GLM-5` |
-
-
-<h3 align="center">
-  <picture>
-    <img alt="Rasa Banner" src="https://github.com/RasaHQ/.github/blob/readme/update-hello-rasa-community/assets/banner-rasa-1200x300.png?raw=true">
-  </picture>
-</h3>
-
-### 🎙️ Voice & partner quickstarts
-
-| Partner | Role | Link |
-| :-- | :-- | :-- |
-| **Speechmatics** | the coworker's *ears* (ASR + TTS) | https://www.speechmatics.com |
-| **Rime** | the coworker's *voice* (TTS) | https://rime.ai |
-| **Neuphonic** | free, local self-hosted TTS | https://github.com/neuphonic/neutts |
-| **Arklex** | Simulation-based agent evals | https://github.com/arklexai/arksim |
-| **Nebius** | State-of-the-art LLM Inference | https://tokenfactory.nebius.com/ |
-
-> The starter wires Speechmatics + Rime + Nebius together for you. Swap in any partner.
-
-<hr/>
-
-<a id="-presentation--judging"></a>
-
-## 🏆 Presentation & Judging
-
-Your team gets **3 minutes** to pitch and demo on **Saturday at 2:00 PM**. **No slide decks** — we want to
-see live, working (or spinning-up) code. After the demos, **everyone votes** in an anonymous community poll
-to pick the winner in each category.
-
-### Prizes
-
-Winning teams in each category get:
-
-- 🤝 **A working session with the founders of our partner companies** — direct access for networking and hands-on idea validation.
-- 🎁 **Gifted Claude subscriptions** for the team.
-
-| 🏆 Prize | What wins it |
-| :-- | :-- |
-| **Most Resilient Long-Term Agent** | Retains memory and handles long context windows without hallucinating. |
-| **Best Voice Coworker** | Clean audio, low latency, real triage / meetings. |
-| **Most Creative Enterprise Use Case** | A genuinely practical back-office or operations workflow. |
-
-### How voting works
-
-1. Submit your project by **1:45 PM** Saturday.
-2. Present live starting at **2:00 PM** (3 min, no slides).
-3. After all demos, the room votes in an **anonymous poll**.
-4. Top team per category wins.
-
-### What to look for
-
-- **🧠 Persistence & memory** — does it hold context across a long session?
-- **🛡️ Resilience** — does it stay grounded instead of making things up under pressure?
-- **🏢 Real workflow fit** — would a team actually use this?
-- **⚙️ Built on Rasa** — projects on the Rasa stack get special consideration, especially for
-  *Most Resilient Long-Term Agent*. The starter is the fast path here.
-
-> The [starter README](starter/README.md) shows how each prize track maps to a concrete extension of the scaffold.
-
-<hr/>
-
-<a id="-team-formation"></a>
-
-## 👥 Team Formation & Idea Board
-
-Don't have a team?
-
-1. Friday at The Foundry is the best time to find one — gather near the front after the kickoff.
-2. Post your ideas or skills in the [community chat](https://info.rasa.com/community).
-3. Max team size: **5**.
-
-<hr/>
-
-## 📦 What's in This Repo
-
-```
-README.md     ← you are here (event source of truth)
-starter/      ← the scaffold: clone it, fork it, ship it
-  ├─ Rasa CALM flows + custom actions (+ persistent memory)
-  ├─ voice/        Speechmatics ASR + Rime TTS over Rasa's REST API
-  └─ agentic/      optional: native Rasa ReAct sub-agent + MCP tools
-```
-
-<div align="center">
-
-<br/>
-
-### Now go build something that lasts. 🚀
-
-<a href="#-always-on-ai-coworker-hackathon"><img src="https://img.shields.io/badge/⬆-Back_to_top-475569?style=for-the-badge" alt="Back to top"/></a>
-
-</div>
+# 🤖 Wally: The Always-On AI Coworker
+
+**Wally** is a persistent, stateful, proactive AI agent that handles real workflows. Built during the Rasa Boston Tech Week 2026 hackathon, Wally moves beyond the simple 5-minute ephemeral chat window to become a long-term digital coworker.
+
+## ✨ Key Features
+
+- **Persistent State**: Backed by a live SQLite database and persistent chat history. Wally remembers your context across sessions. The tickets and runbooks you see are real, persistent state.
+- **Proactive Detection (Heartbeat)**: Wally doesn't just wait for you to ask a question. A background heartbeat monitor detects system anomalies (e.g., checkout returning 500 errors) and triggers an incident triage runbook automatically before anyone even asks.
+- **Agentic Triage & Human-in-the-Loop**: When triage is needed, Wally securely searches past incident histories using MCP (Model Context Protocol) tools to formulate grounded remediation plans. At critical moments, Wally pauses for explicit human approval.
+- **Deterministic CALM Flows**: For strict business logic like reporting bugs, Wally supports rigid, deterministic flows without expensive LLM calls.
+- **Full Control Dashboard**: A dedicated web interface with real-time Kanban step tracking, a live chat UI, and multi-pane terminal logs for monitoring Wally's internal processes.
+
+## 🚀 Quickstart
+
+1. **Install Dependencies**
+   Ensure you have Python 3.10+ and Node.js installed.
+   ```bash
+   cd starter
+   cp .env.example .env      # Add your Rasa, Nebius, and Speechmatics keys
+   make install
+   make train-agentic
+   ```
+
+2. **Seed the Database**
+   Populate the database with initial mock data (crucial for history and MCP search features):
+   ```bash
+   # Make sure you are in the starter directory
+   python scripts/seed_incidents.py
+   ```
+
+3. **Start the System**
+   The dashboard acts as the orchestrator and will spin up the MCP server, Action server, Rasa Agentic, and the Heartbeat monitor.
+   ```bash
+   cd dashboard
+   npm install
+   npm start
+   ```
+
+4. **Open the Dashboard**
+   Navigate to [http://localhost:3000](http://localhost:3000) in your browser. Wait for all terminal panes to show green indicators. 
+
+## 🎬 Demo Workflow
+
+Try out Wally with this flow:
+1. **Persistent State Check**: Ask *"What is the status of ticket INC-1002?"* to verify state persistence.
+2. **Proactive Runbooks**: Wait for the Heartbeat monitor to trigger an anomaly. Wally will automatically start a new triage runbook (`OBJ-XXXX`).
+3. **Agentic Checklist**: Help Wally advance through the checklist by answering its prompts (e.g., Service: `payments`, Symptom: `checkout 500 errors`, Severity: `P1`).
+4. **Approval Gate**: Review the MCP-generated remediation plan and approve it to see Wally execute the final steps.
+5. **Standard Flows**: Say *"I need to report a bug"* to see the strict deterministic fallback in action.
+
+---
+
+*Built for the Always-On AI Coworker Hackathon (Boston Tech Week 2026).*
